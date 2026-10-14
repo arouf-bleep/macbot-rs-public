@@ -72,7 +72,7 @@ Bundle meanings:
 
 Update these surfaces:
 
-- [docs/history/docs/history/CHANGELOG.md](../docs/history/docs/history/CHANGELOG.md)
+- [docs/history/CHANGELOG.md](../docs/history/CHANGELOG.md)
 - [truth-first-program.md](./truth-first-program.md)
 - [profiles/maker_rollout_state.json](./profiles/maker_rollout_state.json)
 

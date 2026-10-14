@@ -31,7 +31,7 @@ ROOT_TEXT_FILES = (
     ".cargo/config.toml",
     ".env.example",
     ".gitignore",
-    "docs/history/docs/history/CHANGELOG.md",
+    "docs/history/CHANGELOG.md",
     "CONTRIBUTING.md",
     "Cargo.toml",
     "LICENSE.md",

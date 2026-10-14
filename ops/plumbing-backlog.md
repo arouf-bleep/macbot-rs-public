@@ -117,7 +117,7 @@ Done when:
 Goal: keep project state synchronized with reality.
 
 Work:
-- update `docs/history/docs/history/CHANGELOG.md` as each plumbing batch lands
+- update `docs/history/CHANGELOG.md` as each plumbing batch lands
 - update `ops/truth-first-program.md` when exit criteria meaningfully advance
 - update `ops/profiles/maker_rollout_state.json` when a proof moves from pending to done
 - keep readiness artifacts aligned with the actual truth-first phase

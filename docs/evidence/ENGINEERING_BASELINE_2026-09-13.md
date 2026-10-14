@@ -1,6 +1,6 @@
 # Engineering baseline — 2026-09-13
 
-This is a sanitized engineering snapshot. It records what was directly checked and separates code quality from strategy performance.
+This historical snapshot records checks from September 2026. Its test counts, dependency advisories and CI configuration describe that earlier revision. Use the current verifier and [dependency disclosure](../DEPENDENCY_DISCLOSURE.md) for the current implementation.
 
 ## Reproducible source checks
 

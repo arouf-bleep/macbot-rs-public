@@ -2,9 +2,9 @@
 
 ## Development baseline
 
-- Rust 1.94.0 or newer stable toolchain with `rustfmt` and `clippy`
-- Python 3.11 for the pinned verification environment
-- Node.js 20 or newer
+- Rust 1.94.0 as pinned in `rust-toolchain.toml`, with `rustfmt` and `clippy`
+- Python 3.11.17 or newer within the 3.11 branch for the pinned verification environment
+- Node.js 22 or newer
 
 Create `.env` from `.env.example`, keep it mode `0600`, and never commit credentials or runtime databases.
 
@@ -30,7 +30,7 @@ cargo test --locked --all-features
 - Add regression coverage for lifecycle, accounting, schema, or configuration changes.
 - Keep exchange payload transformations isolated in `src/clob` or explicit adapter helpers.
 - Keep statuses and persisted enum-like strings compatible with existing data.
-- Update `docs/history/docs/history/CHANGELOG.md` for operator-visible behavior changes.
+- Update `docs/history/CHANGELOG.md` for operator-visible behavior changes.
 - Do not claim strategy improvement from in-sample or small-sample results.
 
 ## Codebase conventions
@@ -39,12 +39,13 @@ These are load-bearing. Breaking them corrupts stored data or silently changes b
 
 - Trade statuses are persisted uppercase: `"OPEN"`, `"CLOSING"`, `"CLOSED"`. Never lowercase.
 - Signals return `Option<f64>`; `None` means the signal is unavailable, which is distinct from zero.
-- `market_data.price` is always the YES price. The NO token price is `1.0 - price`. Entry filters and
-  share calculations must use the token-specific price.
+- `market_data.price` represents YES in analysis snapshots. Entry sizing, spread checks and execution
+  must use the selected token's book. Never treat `1.0 - YES price` as an observed NO quote.
 - Config persistence uses atomic write: temporary file, rename, fsync.
 - Secrets implement `zeroize` on drop, and HMAC comparison uses constant-time equality.
 - Values use parameterised SQL binds. Dynamic identifiers are allowlisted; the backup destination literal is strictly validated.
-- The codebase contains no `unsafe` blocks.
+- Treat unsafe OS and native-runtime integration as review points; preserve validation and targeted
+  tests for their assumptions.
 
 ## Module map
 
