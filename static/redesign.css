@@ -1,0 +1,997 @@
+/* Dashboard visual system — prototype.
+ *
+ * Loaded after the inline <style> block so it overrides it. Kept in one file
+ * so it can be A/B'd by removing a single <link>, and so the direction can be
+ * judged before anyone touches 257 inline style attributes.
+ *
+ * Principles:
+ *   One accent. Green and red are reserved for money, never decoration.
+ *   Seven type sizes, not twenty-nine.
+ *   Borders separate different things; whitespace groups similar things.
+ *   The numbers are the interface. Everything else recedes.
+ */
+
+:root {
+  /* Neutral, slightly cool greys. No blue-black, no pastels. */
+  --clr-bg: #0c0e12;
+  --clr-surface: #13161c;
+  --clr-surface-solid: #13161c;
+  --clr-raised: #191d24;
+  --clr-border: #242932;
+  --clr-border-strong: #2f3641;
+
+  --clr-text: #e8ebf0;
+  --clr-muted: #8b93a3;
+  --clr-faint: #5b6472;
+
+  /* One accent, used for focus and the active state only. */
+  --clr-accent: #5b8def;
+
+  /* Semantic. Desaturated so a screen full of them is still readable. */
+  --clr-green: #3fb07a;
+  --clr-red: #e0555f;
+  --clr-yellow: #d99a3c;
+  --clr-blue: #5b8def;
+  --clr-purple: #8b7fd4;
+
+  /* Type scale. */
+  --fs-xs: 0.6875rem;  /* 11px — labels */
+  --fs-sm: 0.75rem;    /* 12px — secondary */
+  --fs-md: 0.8125rem;  /* 13px — body */
+  --fs-lg: 0.9375rem;  /* 15px — emphasis */
+  --fs-xl: 1.25rem;    /* 20px — figures */
+  --fs-2xl: 1.75rem;   /* 28px — headline figures */
+
+  --r-sm: 6px;
+  --r-md: 10px;
+
+  --shadow-soft: none;
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+body { background: var(--clr-bg); color: var(--clr-text); font-size: var(--fs-md); }
+
+/* ── Cards ──────────────────────────────────────────────────────────────
+   One border, one radius, no glow. Headers are quiet; content is loud. */
+.card {
+  background: var(--clr-surface) !important;
+  border: 1px solid var(--clr-border) !important;
+  border-radius: var(--r-md) !important;
+  box-shadow: none !important;
+}
+.card-header {
+  background: transparent !important;
+  border-bottom: 1px solid var(--clr-border) !important;
+  color: var(--clr-muted) !important;
+  font-size: var(--fs-xs) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em;
+  text-transform: none !important;
+  padding: 10px 14px !important;
+}
+.card-body { padding: 14px !important; }
+
+/* ── Stat figures ───────────────────────────────────────────────────────
+   The number is the point, so it gets the size. The label recedes.
+   No border: these are one group, and whitespace already says so. */
+.stat-pill {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 20px 0 0 !important;
+  min-width: 0 !important;
+  box-shadow: none !important;
+}
+.stat-pill .label {
+  font-size: var(--fs-xs) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+  color: var(--clr-faint) !important;
+  margin-bottom: 2px !important;
+}
+.stat-pill .value {
+  font-size: var(--fs-xl) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Tabs ───────────────────────────────────────────────────────────────
+   Underline, not pills. Sentence case. */
+.terminal-tabs { gap: 2px !important; border-bottom: 1px solid var(--clr-border); }
+.terminal-tab {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  color: var(--clr-muted) !important;
+  font-size: var(--fs-md) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  padding: 8px 14px !important;
+  font-family: inherit !important;
+}
+.terminal-tab:hover { color: var(--clr-text) !important; }
+.terminal-tab.is-active {
+  background: transparent !important;
+  color: var(--clr-text) !important;
+  border-bottom-color: var(--clr-accent) !important;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────
+   Quiet by default. Colour signals consequence, not decoration. */
+.btn { border-radius: var(--r-sm) !important; font-size: var(--fs-md) !important;
+       font-weight: 500 !important; letter-spacing: 0 !important; text-transform: none !important; }
+.btn-outline-success, .btn-outline-danger, .btn-outline-warning,
+.btn-outline-primary, .btn-outline-secondary, .btn-outline-light {
+  background: var(--clr-raised) !important;
+  border: 1px solid var(--clr-border-strong) !important;
+  color: var(--clr-text) !important;
+}
+.btn-outline-success:hover { border-color: var(--clr-green) !important; color: var(--clr-green) !important; }
+.btn-outline-danger:hover  { border-color: var(--clr-red) !important;   color: var(--clr-red) !important; }
+
+/* ── Status chips ───────────────────────────────────────────────────────
+   These carry real meaning, so they keep colour — but only when abnormal. */
+.nav-chip {
+  background: transparent !important;
+  border: 1px solid var(--clr-border) !important;
+  border-radius: var(--r-sm) !important;
+  color: var(--clr-muted) !important;
+  font-size: var(--fs-xs) !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  padding: 4px 9px !important;
+}
+
+/* Keep every control and freshness label available on narrower windows. */
+.navbar { flex-wrap: wrap !important; gap: 8px; }
+.dashboard-controls { flex: 1 1 740px; min-width: 0; flex-wrap: wrap; }
+
+/* ── Signal panel ───────────────────────────────────────────────────────*/
+.signal-badge {
+  border-radius: var(--r-sm) !important;
+  font-size: var(--fs-sm) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em !important;
+  padding: 6px 12px !important;
+}
+.signal-input {
+  background: transparent !important;
+  border: none !important;
+  border-left: 1px solid var(--clr-border) !important;
+  border-radius: 0 !important;
+  padding: 2px 0 2px 14px !important;
+  text-align: left !important;
+}
+.signal-input:first-child { border-left: none !important; padding-left: 0 !important; }
+.signal-input-label { font-size: var(--fs-xs) !important; color: var(--clr-faint) !important;
+  text-transform: none !important; letter-spacing: 0.02em !important; }
+.signal-input-value { font-size: var(--fs-lg) !important; font-weight: 600 !important; }
+.signal-reason {
+  background: transparent !important;
+  border: none !important;
+  border-left: 2px solid var(--clr-border-strong) !important;
+  border-radius: 0 !important;
+  color: var(--clr-muted) !important;
+  font-size: var(--fs-md) !important;
+  padding: 2px 0 2px 12px !important;
+}
+.signal-conf-label { font-size: var(--fs-xs) !important; color: var(--clr-faint) !important;
+  text-transform: none !important; }
+
+/* ── Strip cards ────────────────────────────────────────────────────────*/
+.dashboard-strip-card {
+  background: transparent !important;
+  border: 1px solid var(--clr-border) !important;
+  border-radius: var(--r-md) !important;
+  box-shadow: none !important;
+}
+.dashboard-strip-card .k { font-size: var(--fs-xs) !important; color: var(--clr-faint) !important;
+  text-transform: none !important; letter-spacing: 0.02em !important; }
+.dashboard-strip-card .v { font-size: var(--fs-lg) !important; font-weight: 600 !important;
+  text-transform: none !important; }
+
+/* A value that has never arrived should look absent, not like data. */
+.signal-input-value, .stat-pill .value, .dashboard-strip-card .v { font-variant-numeric: tabular-nums; }
+
+/* Headline. Boring on purpose. */
+.navbar-brand, .brand-title { font-size: var(--fs-lg) !important; font-weight: 600 !important;
+  letter-spacing: -0.01em !important; }
+
+/* ── Typeface ───────────────────────────────────────────────────────────
+   329 elements were monospace, which is the single loudest "terminal
+   cosplay" signal in the interface. Monospace earns its place where glyph
+   alignment matters — price ladders, logs, raw payloads — and nowhere else.
+   Labels and prose go back to the sans, with tabular figures so numbers
+   still line up. */
+.stat-pill .label, .stat-pill .value,
+.card-header, .terminal-tab, .nav-chip, .btn,
+.dashboard-strip-card .k, .dashboard-strip-card .v,
+.signal-input-label, .signal-input-value, .signal-reason,
+.signal-conf-label, .signal-conf-value, .mode-badge,
+.signal-badge, table, th, td, .form-label, .form-control, .form-select {
+  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif !important;
+  font-variant-numeric: tabular-nums;
+}
+/* Kept monospace on purpose: raw tape, logs and payloads. */
+#btc-tape, .terminal-log, .term-line, pre, code, .mono { font-family: 'IBM Plex Mono', monospace !important; }
+
+/* ── Status chips ───────────────────────────────────────────────────────
+   Colour only when something is wrong. A healthy feed should be quiet. */
+.nav-chip .maker-stale, .maker-stale { color: var(--clr-yellow) !important; }
+.mode-badge {
+  background: transparent !important;
+  border: 1px solid var(--clr-border-strong) !important;
+  border-radius: var(--r-sm) !important;
+  color: var(--clr-muted) !important;
+  font-size: var(--fs-xs) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em !important;
+  padding: 4px 9px !important;
+}
+/* Control state is informational, not a warning. Amber should mean amber. */
+.dashboard-strip-card .v.maker-warn { color: var(--clr-text) !important; }
+
+/* Section hint text and disclosure summary: prose, not shouting. */
+#tab-hint { font-size: var(--fs-md) !important; color: var(--clr-muted) !important; }
+.stats-more > summary { text-transform: none !important; letter-spacing: 0 !important;
+  font-size: var(--fs-sm) !important; }
+
+/* ── Shared key/value pairs ─────────────────────────────────────────────
+   `.k` / `.v` is the label-and-figure pair used across every tab, roughly
+   200 instances. Styling it once covers Maker Desk, Risk, Agents, Signals
+   and Model without touching their markup. */
+.k {
+  font-family: 'Space Grotesk', system-ui, sans-serif !important;
+  font-size: var(--fs-xs) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+  color: var(--clr-faint) !important;
+  margin-bottom: 2px !important;
+}
+.v {
+  font-family: 'Space Grotesk', system-ui, sans-serif !important;
+  font-size: var(--fs-lg) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.005em !important;
+  text-transform: none !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Tables ─────────────────────────────────────────────────────────────
+   Header rows were uppercase monospace. Rules only under the header; rows
+   separate by spacing, not by boxing every cell. */
+table { font-size: var(--fs-md) !important; }
+th {
+  font-family: 'Space Grotesk', system-ui, sans-serif !important;
+  font-size: var(--fs-xs) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+  color: var(--clr-faint) !important;
+  border-bottom: 1px solid var(--clr-border) !important;
+  background: transparent !important;
+}
+td { border-top: none !important; border-bottom: 1px solid var(--clr-border) !important;
+     font-variant-numeric: tabular-nums; }
+.table > :not(caption) > * > * { background: transparent !important; box-shadow: none !important; }
+
+/* ── Forms ──────────────────────────────────────────────────────────────*/
+.form-label {
+  font-family: 'Space Grotesk', system-ui, sans-serif !important;
+  font-size: var(--fs-xs) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+  color: var(--clr-faint) !important;
+}
+.form-control, .form-select {
+  background: var(--clr-raised) !important;
+  border: 1px solid var(--clr-border) !important;
+  border-radius: var(--r-sm) !important;
+  color: var(--clr-text) !important;
+  font-size: var(--fs-md) !important;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--clr-accent) !important;
+  box-shadow: 0 0 0 3px rgba(91, 141, 239, 0.15) !important;
+}
+.config-cluster-title {
+  font-family: 'Space Grotesk', system-ui, sans-serif !important;
+  font-size: var(--fs-sm) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--clr-text) !important;
+}
+
+/* ── Badges ─────────────────────────────────────────────────────────────
+   Bootstrap's saturated defaults are the loudest thing on any screen. */
+.badge { border-radius: var(--r-sm) !important; font-weight: 600 !important;
+  font-size: var(--fs-xs) !important; letter-spacing: 0.02em !important; padding: 4px 8px !important; }
+.bg-success { background: rgba(63, 176, 122, 0.15) !important; color: var(--clr-green) !important; }
+.bg-danger  { background: rgba(224, 85, 95, 0.15) !important;  color: var(--clr-red) !important; }
+.bg-warning { background: rgba(217, 154, 60, 0.15) !important; color: var(--clr-yellow) !important; }
+.bg-secondary { background: var(--clr-raised) !important; color: var(--clr-muted) !important; }
+.text-success { color: var(--clr-green) !important; }
+.text-danger  { color: var(--clr-red) !important; }
+.text-warning { color: var(--clr-yellow) !important; }
+.text-muted   { color: var(--clr-muted) !important; }
+
+/* ── Metric grids ───────────────────────────────────────────────────────
+   Twenty-three `.maker-chip` boxes, each with its own border, background
+   and 10px radius, for what is really one table of label/value pairs. A
+   border around every item groups nothing. Hairline dividers and a shared
+   grid do the same job without the noise, and let the figures align. */
+.maker-kv {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+  gap: 0 !important;
+  border-top: 1px solid var(--clr-border);
+}
+.maker-chip {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid var(--clr-border) !important;
+  border-right: 1px solid var(--clr-border) !important;
+  border-radius: 0 !important;
+  padding: 10px 14px !important;
+  box-shadow: none !important;
+}
+/* Trailing edges of the grid should not draw an outer box. */
+.maker-kv > .maker-chip:last-child { border-right-color: transparent !important; }
+
+/* Alert colours stay, because on this panel they mean something. */
+.maker-chip .v.maker-stale, .maker-chip .v.maker-warn { color: var(--clr-yellow) !important; }
+
+/* ── Market header and token prices (direction B) ───────────────────────
+   The countdown is the organising element: every market here expires in
+   fifteen minutes, so "how long left" frames everything else on the panel. */
+.mkt-head { margin-bottom: 16px; }
+.mkt-question { font-size: var(--fs-sm); color: var(--clr-muted); margin-bottom: 8px; }
+.mkt-question.is-idle { color: var(--clr-faint); font-style: italic; }
+.mkt-clock { display: flex; align-items: baseline; gap: 9px; }
+.mkt-countdown {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: var(--fs-2xl);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+/* Under two minutes the window is closing and entries are usually blocked. */
+.mkt-countdown.is-urgent { color: var(--clr-yellow); }
+.mkt-clock-unit { font-size: var(--fs-xs); color: var(--clr-faint); }
+.mkt-track { height: 3px; background: var(--clr-border); border-radius: 2px; overflow: hidden; margin-top: 10px; }
+.mkt-track > i { display: block; height: 100%; background: var(--clr-accent); transition: width 0.4s linear; }
+
+.odds {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: var(--clr-border); border: 1px solid var(--clr-border);
+  border-radius: var(--r-sm); overflow: hidden; margin-bottom: 16px;
+}
+.odd { background: var(--clr-surface); padding: 11px 13px; }
+/* The side the model favours, and only when it favours one. */
+.odd.is-favoured { background: rgba(91, 141, 239, 0.10); }
+.odd-side { font-size: var(--fs-xs); color: var(--clr-faint); letter-spacing: 0.03em; }
+.odd-price {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: var(--fs-xl); font-variant-numeric: tabular-nums;
+  font-weight: 600; line-height: 1.25;
+}
+.odd-model { font-size: var(--fs-xs); color: var(--clr-faint); font-variant-numeric: tabular-nums; }
+
+@media (max-width: 560px) { .odds { grid-template-columns: 1fr; } }
+
+/* ── Idle panels ────────────────────────────────────────────────────────
+   An empty box saying "waiting" implies something is loading. Usually
+   nothing is: there is no open market. Say which, and why. */
+.panel-idle { padding: 26px 18px; text-align: center; }
+.panel-idle-line { font-size: var(--fs-md); color: var(--clr-muted); margin-bottom: 5px; }
+.panel-idle-sub { font-size: var(--fs-sm); color: var(--clr-faint); max-width: 44ch; margin: 0 auto; line-height: 1.5; }
+
+/* The session strip restates gross closed P&L, which the ledger reports net
+   a few lines below. Showing both invites the reader to trust the larger one. */
+#dashboard-strip.is-hidden { display: none !important; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Report — the ledger view.
+
+   Deliberately not a card grid. The rest of the dashboard is an instrument
+   panel; this is a document. Rules instead of borders, one column of reading
+   width, and figures that line up. It is the view meant to be screenshot.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.ledger {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--r-md);
+  padding: clamp(18px, 3vw, 32px);
+}
+
+.ledger-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--clr-border-strong);
+}
+
+.ledger-title {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--clr-text);
+}
+
+.ledger-sub {
+  margin: 4px 0 0;
+  font-size: var(--fs-sm);
+  color: var(--clr-muted);
+}
+
+/* Provenance sits in the header because it is the point of the document,
+   not a config detail. */
+.ledger-prov {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.ledger-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  border: 1px solid var(--clr-border-strong);
+  border-radius: var(--r-sm);
+  padding: 4px 8px;
+  font-size: var(--fs-xs);
+  color: var(--clr-faint);
+  white-space: nowrap;
+}
+
+.ledger-chip b {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  color: var(--clr-text);
+}
+
+/* The honest answer to "can this be evaluated yet" reads before the figures. */
+.ledger-gate {
+  margin-top: 18px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--clr-yellow);
+  background: var(--clr-raised);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: var(--fs-sm);
+  color: var(--clr-muted);
+}
+
+.ledger-gate.is-met { border-left-color: var(--clr-green); }
+.ledger-gate b { color: var(--clr-text); font-weight: 600; }
+
+.ledger-figs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(20px, 4vw, 42px);
+  margin-top: 22px;
+}
+
+.ledger-fig .n {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-xl);
+  line-height: 1.15;
+  color: var(--clr-text);
+}
+
+.ledger-fig .l {
+  display: block;
+  margin-top: 3px;
+  font-size: var(--fs-xs);
+  color: var(--clr-faint);
+}
+
+.ledger-fig .n.pos { color: var(--clr-green); }
+.ledger-fig .n.neg { color: var(--clr-red); }
+
+.ledger-spark { margin: 26px 0 0; }
+.ledger-spark svg { display: block; overflow: visible; }
+
+.ledger-caption {
+  margin-top: 8px;
+  font-size: var(--fs-xs);
+  color: var(--clr-faint);
+}
+
+.ledger-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 36px);
+  margin-top: 32px;
+}
+
+.ledger-block { min-width: 0; }
+
+.ledger-h3 {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: var(--fs-md);
+  font-weight: 600;
+  margin: 0 0 10px;
+  color: var(--clr-text);
+}
+
+.ledger-note {
+  margin: -4px 0 10px;
+  font-size: var(--fs-xs);
+  color: var(--clr-faint);
+}
+
+.ledger-scroll { overflow-x: auto; }
+
+table.ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm) !important;
+}
+
+table.ledger-table th {
+  text-align: left;
+  font-size: var(--fs-xs) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 500;
+  color: var(--clr-faint);
+  padding: 0 14px 7px 0;
+  border-bottom: 1px solid var(--clr-border-strong);
+  white-space: nowrap;
+}
+
+table.ledger-table td {
+  padding: 7px 14px 7px 0;
+  border-bottom: 1px solid var(--clr-border);
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--clr-muted);
+  white-space: nowrap;
+}
+
+/* Market and reason are prose, not figures. */
+table.ledger-table td.txt {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  color: var(--clr-text);
+  white-space: normal;
+  min-width: 140px;
+}
+
+table.ledger-table th.num,
+table.ledger-table td.num { text-align: right; }
+table.ledger-table th:last-child,
+table.ledger-table td:last-child { padding-right: 0; }
+table.ledger-table tr:last-child td { border-bottom: none; }
+
+table.ledger-table td.pos { color: var(--clr-green); }
+table.ledger-table td.neg { color: var(--clr-red); }
+
+.ledger-empty {
+  color: var(--clr-faint) !important;
+  font-family: 'Space Grotesk', system-ui, sans-serif !important;
+  padding: 14px 0 !important;
+}
+
+/* A severity stripe encodes why a rejection matters without a second column
+   of words. */
+.ledger-sev {
+  display: inline-block;
+  width: 3px;
+  height: 13px;
+  vertical-align: -2px;
+  border-radius: 1px;
+  margin-right: 9px;
+  background: var(--clr-border-strong);
+}
+
+.ledger-sev.warn { background: var(--clr-yellow); }
+
+.ledger-foot {
+  margin-top: 26px;
+  padding-top: 16px;
+  border-top: 1px solid var(--clr-border);
+  font-size: var(--fs-xs);
+  color: var(--clr-faint);
+  max-width: 70ch;
+}
+
+@media (max-width: 900px) {
+  .ledger-grid { grid-template-columns: minmax(0, 1fr); }
+  .ledger-head { align-items: flex-start; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Tape — the watching view.
+
+   Two columns that fill one screen. Panels are separated by rules rather than
+   stacked as cards, because eight cards on a screen read as eight things to
+   check; two columns read as one instrument.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.tape {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 0;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.tape-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tape-col-side { border-left: 1px solid var(--clr-border); }
+
+.tape-sec {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--clr-border);
+  min-width: 0;
+}
+
+.tape-col > .tape-sec:last-child { border-bottom: none; }
+.tape-sec-grow { flex: 1 1 auto; }
+
+.tape-h {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  color: var(--clr-faint);
+  margin: 0 0 10px;
+}
+
+.tape-h-note {
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--clr-faint);
+  margin-left: 8px;
+  font-weight: 400;
+}
+
+/* The countdown is the largest thing on the page on purpose. */
+.tape-clock {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.tape-clock .t {
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--clr-text);
+}
+
+.tape-clock .t.is-urgent { color: var(--clr-yellow); }
+
+.tape-clock .u {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: var(--fs-sm);
+  color: var(--clr-faint);
+}
+
+.tape-track {
+  position: relative;
+  height: 3px;
+  margin-top: 12px;
+  background: var(--clr-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.tape-track i {
+  display: block;
+  height: 100%;
+  background: var(--clr-accent);
+  transition: width 0.4s linear;
+}
+
+.tape-track i.is-urgent { background: var(--clr-yellow); }
+
+.tape-rows { margin: 14px 0 0; }
+
+.tape-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--clr-border);
+  font-size: var(--fs-sm);
+}
+
+.tape-rows .tape-row:last-child { border-bottom: none; }
+
+.tape-row dt {
+  color: var(--clr-muted);
+  font-weight: 400;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tape-row dd {
+  margin: 0;
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--clr-text);
+  white-space: nowrap;
+}
+
+.tape-row dd.pos { color: var(--clr-green); }
+.tape-row dd.neg { color: var(--clr-red); }
+.tape-row dd.warn { color: var(--clr-yellow); }
+
+.tape-big {
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-2xl);
+  line-height: 1.1;
+  color: var(--clr-text);
+}
+
+.tape-big.pos { color: var(--clr-green); }
+.tape-big.neg { color: var(--clr-red); }
+
+.tape-scroll { overflow-x: auto; }
+.tape-scroll-y { max-height: 280px; overflow-y: auto; }
+
+table.tape-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm) !important;
+}
+
+table.tape-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--clr-surface);
+  text-align: left;
+  font-size: var(--fs-xs) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 500;
+  color: var(--clr-faint);
+  padding: 0 12px 6px 0;
+  border-bottom: 1px solid var(--clr-border-strong);
+  white-space: nowrap;
+}
+
+table.tape-table td {
+  padding: 6px 12px 6px 0;
+  border-bottom: 1px solid var(--clr-border);
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--clr-muted);
+  white-space: nowrap;
+}
+
+table.tape-table td.txt {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  color: var(--clr-text);
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+table.tape-table th.num, table.tape-table td.num { text-align: right; }
+table.tape-table th:last-child, table.tape-table td:last-child { padding-right: 0; }
+table.tape-table tr:last-child td { border-bottom: none; }
+table.tape-table td.pos { color: var(--clr-green); }
+table.tape-table td.neg { color: var(--clr-red); }
+
+/* A declined decision is not a failure, so it is dimmed rather than coloured. */
+table.tape-table tr.is-declined td { color: var(--clr-faint); }
+table.tape-table tr.is-declined td.txt { color: var(--clr-muted); }
+
+.tape-empty {
+  color: var(--clr-faint) !important;
+  font-family: 'Space Grotesk', system-ui, sans-serif !important;
+  font-size: var(--fs-sm);
+  padding: 10px 0 !important;
+  margin: 0;
+}
+
+/* Signals read as deviation from a centre line, so direction and strength are
+   one shape rather than a number to interpret. */
+.tape-bars { display: flex; flex-direction: column; gap: 7px; }
+
+.tape-bar {
+  display: grid;
+  /* Two signals truncate to the same stem at a fixed 88px ("Distance From R…"),
+     so the label column grows where the layout has room. */
+  grid-template-columns: minmax(72px, 0.42fr) minmax(0, 1fr) 46px;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--fs-xs);
+}
+
+.tape-bar .k {
+  color: var(--clr-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tape-bar .g {
+  position: relative;
+  height: 9px;
+  background: var(--clr-raised);
+  border-radius: 2px;
+}
+
+.tape-bar .g::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background: var(--clr-border-strong);
+}
+
+.tape-bar .g i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--clr-green);
+  border-radius: 1px;
+}
+
+.tape-bar .g i.dn { background: var(--clr-red); }
+
+.tape-bar .v {
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--clr-muted);
+}
+
+@media (max-width: 1000px) {
+  .tape { grid-template-columns: minmax(0, 1fr); }
+  .tape-col-side { border-left: none; border-top: 1px solid var(--clr-border); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Data freshness.
+
+   Every figure on this page is drawn with equal confidence whether it arrived
+   a moment ago or twenty minutes ago. These styles exist so that stops being
+   true: a stale reading has to look stale.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.data-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--fs-sm);
+  color: var(--clr-muted);
+  white-space: nowrap;
+}
+
+.data-status .data-age {
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--clr-faint);
+}
+
+/* Live, stale and disconnected are three different states and must not look
+   like one another. */
+.data-status.is-live #sse-status { color: var(--clr-green); }
+.data-status.is-stale #sse-status,
+.data-status.is-stale .data-age { color: var(--clr-yellow); }
+.data-status.is-down #sse-status,
+.data-status.is-down .data-age { color: var(--clr-red); }
+
+/* Panels fed by an analysis cycle that has gone stale. Dimming the values and
+   marking the container beats silently drawing an old number as a current one. */
+.is-stale-data { position: relative; }
+
+.is-stale-data .stat-value,
+.is-stale-data .signal-input-value,
+.is-stale-data .tape-big,
+.is-stale-data .ledger-fig .n,
+.is-stale-data td,
+.is-stale-data dd {
+  opacity: 0.55;
+}
+
+.stale-banner {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-left: 3px solid var(--clr-yellow);
+  background: var(--clr-raised);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: var(--fs-sm);
+  color: var(--clr-muted);
+}
+
+.stale-banner b { color: var(--clr-text); font-weight: 600; }
+.stale-banner.is-down { border-left-color: var(--clr-red); }
+.stale-banner[hidden] { display: none !important; }
+.stale-banner .dashboard-inline-unlock { margin-left: auto; flex: 0 0 auto; }
+
+.dashboard-auth-btn {
+  border: 1px solid var(--clr-border);
+  background: var(--clr-surface);
+  color: var(--clr-muted);
+}
+.dashboard-auth-btn:hover,
+.dashboard-auth-btn:focus-visible { border-color: var(--clr-blue); color: var(--clr-text); }
+.dashboard-auth-btn.is-read { border-color: color-mix(in srgb, var(--clr-blue) 55%, var(--clr-border)); color: var(--clr-blue); }
+.dashboard-auth-btn.is-write { border-color: color-mix(in srgb, var(--clr-green) 55%, var(--clr-border)); color: var(--clr-green); }
+
+.dashboard-auth-modal {
+  border: 1px solid var(--clr-border);
+  background: var(--clr-surface);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 45%);
+}
+.dashboard-auth-modal .modal-header,
+.dashboard-auth-modal .modal-footer { border-color: var(--clr-border); }
+.dashboard-auth-eyebrow {
+  color: var(--clr-green);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: var(--fs-xs);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.dashboard-auth-modal .modal-title { font-size: 1.15rem; }
+.dashboard-auth-copy,
+.dashboard-auth-modal .form-text,
+.dashboard-auth-modal .form-check-label { color: var(--clr-muted); font-size: var(--fs-sm); }
+.dashboard-auth-modal .form-control {
+  border-color: var(--clr-border);
+  background: var(--clr-raised);
+  color: var(--clr-text);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.dashboard-auth-modal .form-control:focus {
+  border-color: var(--clr-blue);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--clr-blue) 22%, transparent);
+}
+.dashboard-auth-error { min-height: 1.2em; color: var(--clr-red); font-size: var(--fs-sm); }
+
+@media (max-width: 768px) {
+  .stale-banner { align-items: flex-start; flex-wrap: wrap; }
+  .stale-banner .dashboard-inline-unlock { margin-left: 0; }
+}
+
+/* A value the server reports as older than its own refresh interval. */
+.is-aged {
+  color: var(--clr-yellow) !important;
+}
+
+.age-note {
+  margin-left: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: var(--fs-xs);
+  color: var(--clr-faint);
+}

@@ -1,0 +1,194 @@
+[
+  {
+    "label": "Employment Situation (NFP)",
+    "kind": "nfp",
+    "timestamp": "2026-01-09T13:30:00Z",
+    "source": "https://www.bls.gov/cps/publications/release-calendar.htm"
+  },
+  {
+    "label": "Consumer Price Index (CPI)",
+    "kind": "cpi",
+    "timestamp": "2026-01-13T13:30:00Z",
+    "source": "https://www.bls.gov/schedule/news_release/cpi.htm"
+  },
+  {
+    "label": "FOMC Statement",
+    "kind": "fomc",
+    "timestamp": "2026-01-28T19:00:00Z",
+    "source": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+  },
+  {
+    "label": "Employment Situation (NFP)",
+    "kind": "nfp",
+    "timestamp": "2026-02-11T13:30:00Z",
+    "source": "https://www.bls.gov/cps/publications/release-calendar.htm"
+  },
+  {
+    "label": "Consumer Price Index (CPI)",
+    "kind": "cpi",
+    "timestamp": "2026-02-13T13:30:00Z",
+    "source": "https://www.bls.gov/schedule/news_release/cpi.htm"
+  },
+  {
+    "label": "Employment Situation (NFP)",
+    "kind": "nfp",
+    "timestamp": "2026-03-06T13:30:00Z",
+    "source": "https://www.bls.gov/cps/publications/release-calendar.htm"
+  },
+  {
+    "label": "Consumer Price Index (CPI)",
+    "kind": "cpi",
+    "timestamp": "2026-03-11T12:30:00Z",
+    "source": "https://www.bls.gov/schedule/news_release/cpi.htm"
+  },
+  {
+    "label": "FOMC Statement",
+    "kind": "fomc",
+    "timestamp": "2026-03-18T18:00:00Z",
+    "source": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+  },
+  {
+    "label": "Employment Situation (NFP)",
+    "kind": "nfp",
+    "timestamp": "2026-04-03T12:30:00Z",
+    "source": "https://www.bls.gov/cps/publications/release-calendar.htm"
+  },
+  {
+    "label": "Consumer Price Index (CPI)",
+    "kind": "cpi",
+    "timestamp": "2026-04-10T12:30:00Z",
+    "source": "https://www.bls.gov/schedule/news_release/cpi.htm"
+  },
+  {
+    "label": "FOMC Statement",
+    "kind": "fomc",
+    "timestamp": "2026-04-29T18:00:00Z",
+    "source": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+  },
+  {
+    "label": "Employment Situation (NFP)",
+    "kind": "nfp",
+    "timestamp": "2026-05-08T12:30:00Z",
+    "source": "https://www.bls.gov/cps/publications/release-calendar.htm"
+  },
+  {
+    "label": "Consumer Price Index (CPI)",
+    "kind": "cpi",
+    "timestamp": "2026-05-12T12:30:00Z",
+    "source": "https://www.bls.gov/schedule/news_release/cpi.htm"
+  },
+  {
+    "label": "Employment Situation (NFP)",
+    "kind": "nfp",
+    "timestamp": "2026-06-05T12:30:00Z",
+    "source": "https://www.bls.gov/cps/publications/release-calendar.htm"
+  },
+  {
+    "label": "Consumer Price Index (CPI)",
+    "kind": "cpi",
+    "timestamp": "2026-06-10T12:30:00Z",
+    "source": "https://www.bls.gov/schedule/news_release/cpi.htm"
+  },
+  {
+    "label": "FOMC Statement",
+    "kind": "fomc",
+    "timestamp": "2026-06-17T18:00:00Z",
+    "source": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+  },
+  {
+    "label": "Employment Situation (NFP)",
+    "kind": "nfp",
+    "timestamp": "2026-07-02T12:30:00Z",
+    "source": "https://www.bls.gov/cps/publications/release-calendar.htm"
+  },
+  {
+    "label": "Consumer Price Index (CPI)",
+    "kind": "cpi",
+    "timestamp": "2026-07-14T12:30:00Z",
+    "source": "https://www.bls.gov/schedule/news_release/cpi.htm"
+  },
+  {
+    "label": "FOMC Statement",
+    "kind": "fomc",
+    "timestamp": "2026-07-29T18:00:00Z",
+    "source": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+  },
+  {
+    "label": "Employment Situation (NFP)",
+    "kind": "nfp",
+    "timestamp": "2026-08-07T12:30:00Z",
+    "source": "https://www.bls.gov/cps/publications/release-calendar.htm"
+  },
+  {
+    "label": "Consumer Price Index (CPI)",
+    "kind": "cpi",
+    "timestamp": "2026-08-12T12:30:00Z",
+    "source": "https://www.bls.gov/schedule/news_release/cpi.htm"
+  },
+  {
+    "label": "Employment Situation (NFP)",
+    "kind": "nfp",
+    "timestamp": "2026-09-04T12:30:00Z",
+    "source": "https://www.bls.gov/cps/publications/release-calendar.htm"
+  },
+  {
+    "label": "Consumer Price Index (CPI)",
+    "kind": "cpi",
+    "timestamp": "2026-09-11T12:30:00Z",
+    "source": "https://www.bls.gov/schedule/news_release/cpi.htm"
+  },
+  {
+    "label": "FOMC Statement",
+    "kind": "fomc",
+    "timestamp": "2026-09-16T18:00:00Z",
+    "source": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+  },
+  {
+    "label": "Employment Situation (NFP)",
+    "kind": "nfp",
+    "timestamp": "2026-10-02T12:30:00Z",
+    "source": "https://www.bls.gov/cps/publications/release-calendar.htm"
+  },
+  {
+    "label": "Consumer Price Index (CPI)",
+    "kind": "cpi",
+    "timestamp": "2026-10-14T12:30:00Z",
+    "source": "https://www.bls.gov/schedule/news_release/cpi.htm"
+  },
+  {
+    "label": "FOMC Statement",
+    "kind": "fomc",
+    "timestamp": "2026-10-28T18:00:00Z",
+    "source": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+  },
+  {
+    "label": "Employment Situation (NFP)",
+    "kind": "nfp",
+    "timestamp": "2026-11-06T13:30:00Z",
+    "source": "https://www.bls.gov/cps/publications/release-calendar.htm"
+  },
+  {
+    "label": "Consumer Price Index (CPI)",
+    "kind": "cpi",
+    "timestamp": "2026-11-10T13:30:00Z",
+    "source": "https://www.bls.gov/schedule/news_release/cpi.htm"
+  },
+  {
+    "label": "Employment Situation (NFP)",
+    "kind": "nfp",
+    "timestamp": "2026-12-04T13:30:00Z",
+    "source": "https://www.bls.gov/cps/publications/release-calendar.htm"
+  },
+  {
+    "label": "FOMC Statement",
+    "kind": "fomc",
+    "timestamp": "2026-12-09T19:00:00Z",
+    "source": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+  },
+  {
+    "label": "Consumer Price Index (CPI)",
+    "kind": "cpi",
+    "timestamp": "2026-12-10T13:30:00Z",
+    "source": "https://www.bls.gov/schedule/news_release/cpi.htm"
+  }
+]

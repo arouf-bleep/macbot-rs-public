@@ -1,0 +1,26 @@
+#![recursion_limit = "256"]
+
+pub mod analysis;
+pub mod api;
+pub mod bot;
+pub mod btc;
+pub mod clob;
+pub mod config;
+pub mod db;
+pub mod domain;
+pub mod env_util;
+pub mod error;
+pub mod ev;
+pub mod fusion;
+pub mod http_client;
+pub mod instance_lock;
+pub mod json_util;
+pub mod market;
+pub mod metrics;
+pub mod ml;
+pub mod notifications;
+pub mod replay;
+pub mod rpc;
+pub mod signals;
+pub mod task_monitor;
+pub mod tls;

@@ -1,0 +1,10 @@
+# Validated direct dependencies. Full operator verification uses the transitive
+# environment snapshot in requirements-verify.lock with Python 3.11.
+torch==2.13.0
+numpy==2.0.2
+scikit-learn==1.6.1
+optuna==5.0.0
+onnx==1.22.0
+onnxruntime==1.31.0
+tqdm==4.70.1
+requests==2.34.2

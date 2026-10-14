@@ -1,0 +1,72 @@
+{
+  "generated_at_utc": "2026-09-13T21:42:17Z",
+  "control_profile": "ops/profiles/maker_paper_baseline.json",
+  "active_candidate_profile": null,
+  "active_candidate_label": null,
+  "status": "baseline_only",
+  "focus": "truth_first",
+  "reason": "A fresh recency, stress-fold, and lane-forensics review found no promotable alpha candidate. The directional baseline and all tested filters failed the 30-day stress gate; TREND_DOWN/BUY_NO was consistently destructive, while TREND_UP/BUY_YES showed only unstable recent-window behavior. Execution, lifecycle, feed, reporting, and shutdown truth remain the active workstreams.",
+  "alpha_review": {
+    "status": "complete_no_candidate",
+    "review": "docs/evidence/ALPHA_REVIEW_2026-09-13.md",
+    "promotion_decision": "none",
+    "retire_from_consideration": "TREND_DOWN/BUY_NO",
+    "shadow_observation_only": "TREND_UP/BUY_YES"
+  },
+  "truth_program": {
+    "status": "active",
+    "doc": "ops/truth-first-program.md",
+    "allowed_workstreams": [
+      "validation_control_soaks",
+      "shutdown_validation",
+      "execution_and_lifecycle_integrity",
+      "feed_and_session_truth",
+      "reporting_and_observability",
+      "storage_and_ops_hygiene"
+    ],
+    "deferred_workstreams": [
+      "alpha_tuning",
+      "new_strategy_candidates",
+      "weight_optimization",
+      "rollout_promotion",
+      "canary_or_live_prep"
+    ],
+    "exit_criteria": [
+      "repeated control runs with plausible execution fills",
+      "shutdown cleanup proven with open inventory at exit",
+      "no stranded OPEN or CLOSING trades after validation runs",
+      "reporting explains policy suppression, market quality, and shutdown outcomes without manual forensic digging"
+    ],
+    "shutdown_status": {
+      "state": "code_complete_evidence_incomplete",
+      "single_trade_proof": "done",
+      "multi_open_proof": "pending_live_window",
+      "latest_terminal_class": "starvation/dead_window",
+      "latest_reason": "no_target_markets",
+      "decision": "parked_until_live_window"
+    }
+  },
+  "validation_rail": {
+    "status": "research_validation",
+    "control_profile": "ops/profiles/maker_paper_validation_control.json",
+    "shutdown_profile": "ops/profiles/maker_paper_validation_shutdown.json",
+    "reason": "Short validation control and shutdown-validation soaks remain allowed while alpha work is shelved, and they stay separate from the baseline rollout rail. Shutdown validation is currently parked unless a clearly live window is available."
+  },
+  "retired_candidates": [
+    {
+      "profile": "ops/profiles/maker_paper_widen20.json",
+      "label": "widen_20bps",
+      "status": "retired_research_only"
+    },
+    {
+      "profile": "ops/profiles/maker_paper_widen40_floor120.json",
+      "label": "widen_40bps_floor120bps",
+      "status": "retired_research_only"
+    }
+  ],
+  "reference_artifacts": [
+    "docs/evidence/ALPHA_REVIEW_2026-09-13.md",
+    "artifacts/maker-soak-reports/20260323_071411_maker_ab_compare.json",
+    "artifacts/maker-ab-batches/20260323_072825_maker_ab_batch.json"
+  ]
+}

@@ -1,0 +1,16 @@
+[build]
+# ".nosync" keeps the build cache out of iCloud Drive sync. This tree lives under
+# ~/Documents, and syncing multi-gigabyte build output between machines caused
+# file eviction and stalled reads. Override per-machine with CARGO_TARGET_DIR.
+target-dir = "target.nosync"
+
+# Keep routine development and verification builds small. Assertions and
+# overflow checks retain Cargo's development defaults. For a debugging session,
+# override CARGO_PROFILE_DEV_DEBUG=2 or CARGO_PROFILE_TEST_DEBUG=2.
+[profile.dev]
+debug = 0
+incremental = false
+
+[profile.test]
+debug = 0
+incremental = false

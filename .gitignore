@@ -1,0 +1,42 @@
+# Rust build output (".nosync" keeps it out of iCloud Drive sync)
+/target
+/target.nosync
+.playwright-cli/
+
+# Local secrets and env files
+.env
+.env.*
+!.env.example
+
+# Python virtualenvs and caches
+.pycache/
+__pycache__/
+.venv*/
+
+# Local tool metadata
+.claude/
+CLAUDE.md
+
+# OS files
+.DS_Store
+
+# Runtime databases
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Generated runtime artifacts
+/artifacts/
+/data/
+/models/*
+!/models/latest.onnx
+!/models/provenance.json
+/ops/profiles/artifacts/
+/output/
+/notes/
+*_temp.json
+ensemble_state.json
+ml_weights.json

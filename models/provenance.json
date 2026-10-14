@@ -1,0 +1,18 @@
+{
+  "artifact": "latest.onnx",
+  "origin": "synthetic_untrained_test_model",
+  "training_data": "none",
+  "seed": 20260914,
+  "generator": "training/export_runtime_fixture.py",
+  "generator_output": "scalar_only.onnx",
+  "torch_version": "2.13.0",
+  "purpose": "Runtime contract demonstration only; not a trading strategy",
+  "sha256": "9d2c20a0bc84787dfee32c5a3281819256cae41a740244c19283cba19e42d3ea",
+  "original_model": "excluded from transfer and retained privately",
+  "onnx_version": "1.22.0",
+  "onnxruntime_validation_version": "1.31.0",
+  "supported_supervised_target": "resolved_binary_p_up",
+  "auxiliary_outputs": "magnitude, volatility and time_to_move are zero ABI placeholders; unavailable as forecasts",
+  "generator_source_sha256": "24aa046a0efbcace1af315c52714cfa774b2f6368f017556a2a2f02c7e1fa1cf",
+  "architecture_source_sha256": "8a8f0b8bea4a8c669492a06a0c478fdd3f1fd520b3bc219c2394c4dc969c64b8"
+}

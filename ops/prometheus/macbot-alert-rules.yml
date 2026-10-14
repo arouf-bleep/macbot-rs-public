@@ -1,0 +1,202 @@
+groups:
+  - name: macbot-runtime
+    rules:
+      - alert: MacbotLoopStopped
+        expr: macbot_loop_running == 0
+        for: 1m
+        labels:
+          severity: page
+          service: macbot
+        annotations:
+          summary: "Macbot main loop is stopped"
+          description: "macbot_loop_running has been 0 for at least 1 minute."
+          runbook: "Check process/service status and recent logs. Restart bot if needed."
+
+      - alert: MacbotKillSwitchActive
+        expr: macbot_kill_switch_active > 0
+        for: 30s
+        labels:
+          severity: page
+          service: macbot
+        annotations:
+          summary: "Macbot kill switch active"
+          description: "Trading is fail-closed due to a risk or execution safety condition."
+          runbook: "Inspect /api/risk/status and logs before clearing kill switch."
+
+      - alert: MacbotAnalysisStale
+        expr: macbot_analysis_age_seconds > 90
+        for: 3m
+        labels:
+          severity: warning
+          service: macbot
+        annotations:
+          summary: "Analysis signal appears stale"
+          description: "Analysis age has exceeded 90s for 3 minutes."
+          runbook: "Check market data ingestion and analysis loop cadence."
+
+      - alert: MacbotL2FeedStale
+        expr: macbot_l2_feed_stale > 0
+        for: 2m
+        labels:
+          severity: warning
+          service: macbot
+        annotations:
+          summary: "L2 feed is stale"
+          description: "Local L2 feed is marked stale for over 2 minutes."
+          runbook: "Check CLOB WS connectivity, channel config, and l2 stale reason."
+
+      - alert: MacbotL2FeedAgeHigh
+        expr: macbot_l2_feed_stale == 0 and macbot_l2_feed_age_ms > 10000
+        for: 2m
+        labels:
+          severity: warning
+          service: macbot
+        annotations:
+          summary: "L2 feed age is high"
+          description: "L2 event age exceeds 10s while feed is not marked stale."
+          runbook: "Investigate ingestion lag and WS throughput."
+
+      - alert: MacbotSloGuardTrips
+        expr: increase(macbot_slo_guard_trips_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: page
+          service: macbot
+        annotations:
+          summary: "Runtime SLO guard tripped"
+          description: "SLO guard triggered fail-closed behavior in the last 5 minutes."
+          runbook: "Inspect /api/risk/status for SLO thresholds, L2 age, and drop deltas."
+
+      - alert: MacbotShadowKillTriggered
+        expr: increase(macbot_shadow_kill_switch_trips_total[15m]) > 0
+        for: 0m
+        labels:
+          severity: page
+          service: macbot
+        annotations:
+          summary: "Shadow kill switch triggered"
+          description: "Shadow performance guard tripped in the last 15 minutes."
+          runbook: "Inspect /api/risk/status, shadow-kill metrics, and recent closed shadow trades before re-enabling the loop."
+
+  - name: macbot-execution
+    rules:
+      - alert: MacbotApiTradeFailuresSpike
+        expr: increase(macbot_api_trade_fail_total[5m]) >= 3
+        for: 0m
+        labels:
+          severity: warning
+          service: macbot
+        annotations:
+          summary: "Trade API failures spiking"
+          description: "Three or more trade API failures occurred in the last 5 minutes."
+          runbook: "Inspect auth/idempotency errors and upstream exchange responses."
+
+      - alert: MacbotForceTradeFailuresSpike
+        expr: increase(macbot_api_force_trade_fail_total[5m]) >= 2
+        for: 0m
+        labels:
+          severity: warning
+          service: macbot
+        annotations:
+          summary: "Force-trade API failures detected"
+          description: "Two or more force-trade failures occurred in the last 5 minutes."
+          runbook: "Inspect forced execution path and downstream close/open route errors."
+
+      - alert: MacbotOrderRejectsSpike
+        expr: increase(macbot_clob_order_reject_total[10m]) >= 3
+        for: 0m
+        labels:
+          severity: page
+          service: macbot
+        annotations:
+          summary: "CLOB order rejects spiking"
+          description: "Three or more CLOB order rejects occurred in the last 10 minutes."
+          runbook: "Check signature, nonce/sequence flow, and order constraints."
+
+      - alert: MacbotDbInsertFailures
+        expr: increase(macbot_db_insert_fail_total[10m]) > 0
+        for: 0m
+        labels:
+          severity: page
+          service: macbot
+        annotations:
+          summary: "DB insert failure detected"
+          description: "At least one DB insert failure occurred in the last 10 minutes."
+          runbook: "Inspect SQLite health, WAL mode, and file permission/disk state."
+
+      - alert: MacbotNoTradeActivity
+        expr: macbot_loop_running == 1 and increase(macbot_trades_opened_total[60m]) == 0
+        for: 30m
+        labels:
+          severity: info
+          service: macbot
+        annotations:
+          summary: "No trades opened recently"
+          description: "No new trades opened in the last hour while loop is running."
+          runbook: "Check risk gates, confidence thresholds, and market availability."
+
+      - alert: MacbotMakerQuoteDrained
+        expr: macbot_l2_feed_stale == 0 and macbot_maker_quote_count == 0
+        for: 15m
+        labels:
+          severity: warning
+          service: macbot
+        annotations:
+          summary: "Maker quote book is empty"
+          description: "No maker quotes are active while L2 feed is healthy."
+          runbook: "Inspect maker model decision states, quote guardrails, and replace limits."
+
+      - alert: MacbotReconcileDriftDetected
+        expr: increase(macbot_reconcile_drift_events_total[15m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          service: macbot
+        annotations:
+          summary: "Live reconcile drift detected"
+          description: "Full reconcile detected DB-vs-memory OPEN live drift in the last 15 minutes."
+          runbook: "Check restart/reconcile logs and confirm local state matches exchange + DB."
+
+      - alert: MacbotAnalysisSnapshotPersistFailures
+        expr: increase(macbot_analysis_snapshot_persist_fail_total[10m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          service: macbot
+        annotations:
+          summary: "Analysis snapshots are failing to persist"
+          description: "At least one analysis snapshot failed to write in the last 10 minutes."
+          runbook: "Check SQLite integrity, disk state, and recent analysis loop logs."
+
+      - alert: MacbotOutboxDropsDetected
+        expr: increase(macbot_outbox_dropped_total[10m]) > 0
+        for: 0m
+        labels:
+          severity: page
+          service: macbot
+        annotations:
+          summary: "Outbox drops detected"
+          description: "At least one outbox event was dropped in the last 10 minutes."
+          runbook: "Inspect actor pressure, outbox queue health, and /api/ready last_reconcile_* fields before resuming normal operation."
+
+      - alert: MacbotActorCommandDropsDetected
+        expr: increase(macbot_actor_cmd_drop_total[10m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          service: macbot
+        annotations:
+          summary: "Actor command drops detected"
+          description: "At least one execution-actor command was dropped in the last 10 minutes."
+          runbook: "Inspect actor lane depth gauges, backpressure, and outbox pressure before trusting execution health."
+
+      - alert: MacbotTradeEntryGatesBlockingRepeatedly
+        expr: increase(macbot_trade_entry_block_degraded_total[15m]) > 0 or increase(macbot_trade_entry_block_circuit_breaker_total[15m]) > 0 or increase(macbot_trade_entry_block_l2_stale_total[15m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          service: macbot
+        annotations:
+          summary: "Trade entry gates are blocking repeatedly"
+          description: "Degraded mode, cooldown, or stale-L2 gates blocked new entries in the last 15 minutes."
+          runbook: "Inspect /api/risk/status counters to confirm whether the bot is intentionally standing down or stuck behind a stale runtime condition."

@@ -1,0 +1,9 @@
+{
+  "bootstrap.txt": "https://raw.githubusercontent.com/twbs/bootstrap/v5.3.2/LICENSE",
+  "bootstrap-icons.txt": "https://raw.githubusercontent.com/twbs/icons/v1.11.3/LICENSE",
+  "chartjs.txt": "https://raw.githubusercontent.com/chartjs/Chart.js/v4.4.2/LICENSE.md",
+  "space-grotesk.txt": "https://raw.githubusercontent.com/google/fonts/main/ofl/spacegrotesk/OFL.txt",
+  "ibm-plex-mono.txt": "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/OFL.txt",
+  "popper.txt": "https://registry.npmjs.org/@popperjs/core/-/core-2.11.8.tgz",
+  "kurkle-color.txt": "https://registry.npmjs.org/@kurkle/color/-/color-0.3.2.tgz"
+}

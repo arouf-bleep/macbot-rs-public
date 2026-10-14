@@ -1,0 +1,521 @@
+/* Dashboard base styles.
+ * Extracted from index.html so the markup is readable and styling lives in
+ * one place. Loaded before redesign.css, which overrides it.
+ */
+:root {
+  /* Type scale. Seventeen ad-hoc sizes between 0.55 and 1.3rem collapsed to
+     six steps. Values here are the base; redesign.css may restate them. */
+  --fs-xs: 0.6875rem;
+  --fs-sm: 0.75rem;
+  --fs-md: 0.8125rem;
+  --fs-lg: 0.9375rem;
+  --fs-xl: 1.25rem;
+  --fs-2xl: 1.75rem;
+
+  /* Radii. Eleven values collapsed to three. */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-pill: 999px;
+
+  --clr-bg: #0f1219;
+  --clr-surface: rgba(20, 23, 32, 0.92);
+  --clr-surface-solid: #151925;
+  --clr-border: rgba(255, 255, 255, 0.16);
+  --clr-text: #ecf0f8;
+  --clr-muted: #9ca8bf;
+  --clr-green: #7de5b5;
+  --clr-red: #ff92a0;
+  --clr-yellow: #ffc59c;
+  --clr-blue: #a9b8d7;
+  --clr-purple: #baa6ff;
+  --shadow-soft: 0 14px 34px rgba(0, 0, 0, 0.48);
+  --shadow-pop: 0 22px 52px rgba(0, 0, 0, 0.62);
+}
+html, body {
+  background: var(--clr-bg);
+  color: var(--clr-text);
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  color-scheme: dark;
+}
+body {
+  background-image:
+    radial-gradient(1100px 560px at 18% -10%, rgba(98, 113, 154, 0.20), transparent 70%),
+    radial-gradient(1000px 520px at 115% -8%, rgba(255, 197, 156, 0.08), transparent 72%),
+    linear-gradient(170deg, #141720 0%, #0f1219 100%);
+  overflow-x: hidden;
+}
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  width: 460px;
+  height: 460px;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+body::before {
+  background: rgba(117, 133, 177, 0.22);
+  left: -140px;
+  top: 90px;
+}
+body::after {
+  background: rgba(255, 197, 156, 0.14);
+  right: -130px;
+  bottom: 50px;
+}
+/* ── Navbar ────────────────────────────────────────────────────────── */
+.navbar-brand {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  letter-spacing: -0.35px;
+  color: var(--clr-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.navbar {
+  position: sticky;
+  top: 12px;
+  z-index: 200;
+  margin: 12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--r-md);
+  background: linear-gradient(180deg, rgba(24,28,40,0.92) 0%, rgba(17,20,29,0.88) 100%) !important;
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-soft);
+}
+/* ── Cards ─────────────────────────────────────────────────────────── */
+.card {
+  background: linear-gradient(180deg, rgba(24,28,39,0.92) 0%, rgba(17,20,29,0.88) 100%);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  animation: cardIn 360ms ease both;
+}
+.card-header { border-top-left-radius: 18px; border-top-right-radius: 18px; }
+.card-body { border-bottom-left-radius: 18px; border-bottom-right-radius: 18px; }
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-pop);
+  border-color: rgba(255,255,255,0.30);
+}
+.card-header {
+  background: transparent;
+  border-bottom: 1px solid var(--clr-border);
+  font-weight: 650;
+  font-size: var(--fs-md);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--clr-muted);
+  padding: 0.78rem 1rem;
+  font-family: 'IBM Plex Mono', monospace;
+}
+/* ── Stats row ─────────────────────────────────────────────────────── */
+#stats-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+.stat-pill {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--r-md);
+  padding: 0.56rem 0.86rem;
+  min-width: 110px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 22px rgba(0,0,0,0.30);
+}
+.stat-pill .label {
+  font-size: var(--fs-xs);
+  color: var(--clr-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.stat-pill .value { font-size: var(--fs-lg); font-weight: 700; line-height: 1.05; }
+/* ── Signal badge ──────────────────────────────────────────────────── */
+.signal-badge {
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  letter-spacing: -0.9px;
+  padding: 0.48rem 1.35rem;
+  border-radius: var(--r-md);
+  display: inline-block;
+  text-transform: uppercase;
+  box-shadow: 0 8px 20px rgba(31, 52, 103, 0.15);
+}
+.signal-BUY_YES  { background: linear-gradient(135deg, rgba(125,229,181,0.20) 0%, rgba(125,229,181,0.08) 100%); color: var(--clr-green); border: 1px solid rgba(125,229,181,0.45); }
+.signal-BUY_NO   { background: linear-gradient(135deg, rgba(255,146,160,0.22) 0%, rgba(255,146,160,0.08) 100%); color: var(--clr-red); border: 1px solid rgba(255,146,160,0.42); }
+.signal-HOLD     { background: linear-gradient(135deg, rgba(169,184,215,0.20) 0%, rgba(169,184,215,0.08) 100%); color: var(--clr-muted); border: 1px solid rgba(169,184,215,0.34); }
+/* ── Weight bars ───────────────────────────────────────────────────── */
+.weight-bar-track {
+  height: 6px;
+  background: rgba(255,255,255,0.12);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+.weight-bar-fill {
+  height: 6px;
+  border-radius: var(--r-sm);
+  transition: width 0.4s ease;
+}
+.weight-positive { background: var(--clr-green); }
+.weight-negative { background: var(--clr-red); }
+.weight-neutral  { background: var(--clr-muted); }
+/* ── Tables ────────────────────────────────────────────────────────── */
+.table { color: var(--clr-text); font-size: var(--fs-md); margin-bottom: 0; }
+.table th {
+  color: var(--clr-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.085em;
+  border-color: rgba(79, 101, 150, 0.24);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.table td {
+  border-color: rgba(255,255,255,0.12);
+  vertical-align: middle;
+  color: #e1e8f8;
+}
+.table-hover tbody tr:hover { background: rgba(255,255,255,0.06); }
+/* ── PnL colours ───────────────────────────────────────────────────── */
+.pnl-pos { color: var(--clr-green); font-weight: 600; }
+.pnl-neg { color: var(--clr-red);   font-weight: 600; }
+.pnl-zero { color: var(--clr-muted); }
+/* ── Direction badges ──────────────────────────────────────────────── */
+.dir-yes { background: rgba(11,159,110,0.16); color: var(--clr-green); border-radius: var(--r-sm); padding: 1px 8px; font-size: var(--fs-sm); font-weight: 600; }
+.dir-no  { background: rgba(217,60,60,0.16); color: var(--clr-red); border-radius: var(--r-sm); padding: 1px 8px; font-size: var(--fs-sm); font-weight: 600; }
+/* ── Mode badge ────────────────────────────────────────────────────── */
+.mode-live { background: rgba(217,60,60,0.14); color: var(--clr-red); border: 1px solid rgba(217,60,60,0.4); }
+.mode-sim  { background: rgba(43,99,255,0.13); color: var(--clr-blue); border: 1px solid rgba(43,99,255,0.35); }
+.mode-badge {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  border-radius: var(--r-sm);
+  padding: 3px 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: 'IBM Plex Mono', monospace;
+}
+/* ── Outcome streak badges ─────────────────────────────────────────── */
+.streak-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 35px; height: 35px; border-radius: var(--r-md);
+  font-size: var(--fs-sm); font-weight: 700;
+}
+.streak-up   { background: rgba(11,159,110,0.18); color: var(--clr-green); border: 1px solid rgba(11,159,110,0.36); }
+.streak-down { background: rgba(217,60,60,0.18); color: var(--clr-red); border: 1px solid rgba(217,60,60,0.36); }
+/* ── Config inputs ─────────────────────────────────────────────────── */
+.form-control, .form-select, .form-check-input {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.20);
+  color: var(--clr-text);
+  font-size: var(--fs-md);
+  border-radius: var(--r-md);
+}
+.form-control:focus, .form-select:focus {
+  background: rgba(255,255,255,0.08);
+  border-color: var(--clr-blue);
+  color: var(--clr-text);
+  box-shadow: 0 0 0 3px rgba(169, 184, 215, 0.24);
+}
+.form-check-input:checked { background-color: var(--clr-blue); border-color: var(--clr-blue); }
+.form-label {
+  font-size: var(--fs-xs);
+  color: var(--clr-muted);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.config-cluster {
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--r-md);
+  padding: 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+  height: 100%;
+}
+.config-cluster-title {
+  font-size: var(--fs-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--clr-muted);
+  margin-bottom: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  border-bottom: 1px solid rgba(255,255,255,0.16);
+  padding-bottom: 6px;
+}
+.config-advanced {
+  border-top: 1px solid rgba(255,255,255,0.16);
+  padding-top: 12px;
+}
+.config-advanced > summary {
+  cursor: pointer;
+  font-size: var(--fs-sm);
+  padding: 6px 0;
+}
+.config-advanced > summary:focus-visible {
+  outline: 2px solid var(--clr-blue);
+  outline-offset: 4px;
+}
+/* ── Buttons ───────────────────────────────────────────────────────── */
+.btn-sm { font-size: var(--fs-sm); border-radius: var(--r-md); }
+.btn {
+  border-radius: var(--r-md);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn-outline-success {
+  border-color: rgba(125,229,181,0.46);
+  color: var(--clr-green);
+  background: rgba(125,229,181,0.10);
+}
+.btn-outline-success:hover { background: rgba(125,229,181,0.18); color: var(--clr-green); }
+.btn-outline-danger {
+  border-color: rgba(255,146,160,0.46);
+  color: var(--clr-red);
+  background: rgba(255,146,160,0.10);
+}
+.btn-outline-danger:hover { background: rgba(255,146,160,0.18); color: var(--clr-red); }
+.btn-outline-secondary {
+  border-color: rgba(255,255,255,0.22);
+  color: #d2dbee;
+  background: rgba(255,255,255,0.06);
+}
+.btn-outline-secondary:hover {
+  background: rgba(255,255,255,0.12);
+  color: #eff3fb;
+}
+/* ── SSE dot ───────────────────────────────────────────────────────── */
+#sse-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  display: inline-block; margin-right: 5px;
+  background: var(--clr-muted);
+}
+#sse-dot.connected { background: var(--clr-green); box-shadow: 0 0 9px rgba(11,159,110,0.7); }
+/* ── Scrollable trade table ────────────────────────────────────────── */
+.trade-table-wrapper { max-height: 352px; overflow-y: auto; overflow-x: auto; }
+.trade-table-wrapper::-webkit-scrollbar { width: 6px; }
+.trade-table-wrapper::-webkit-scrollbar-track { background: transparent; }
+.trade-table-wrapper::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.26); border-radius: var(--r-sm); }
+/* ── Responsive helpers ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .navbar { margin: 8px; top: 6px; }
+  .stat-pill { min-width: 80px; }
+  .signal-badge { font-size: var(--fs-xl); }
+  .card { border-radius: var(--r-md); }
+  .card-header { font-size: var(--fs-xs); }
+  .table { font-size: var(--fs-sm); }
+}
+/* ── Toast ─────────────────────────────────────────────────────────── */
+.toast-container { z-index: 9999; }
+/* ── Loading spinner ───────────────────────────────────────────────── */
+.spinner-sm { width: 14px; height: 14px; }
+/* ── Chart container ───────────────────────────────────────────────── */
+.chart-container { position: relative; height: 220px; }
+.terminal-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.terminal-tab {
+  border: 1px solid var(--clr-border);
+  background: rgba(255,255,255,0.04);
+  color: var(--clr-muted);
+  border-radius: var(--r-pill);
+  padding: 6px 12px;
+  font-size: var(--fs-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: 'IBM Plex Mono', monospace;
+  cursor: pointer;
+}
+.terminal-tab.is-active {
+  background: rgba(255, 197, 156, 0.18);
+  color: var(--clr-yellow);
+  border-color: rgba(255, 197, 156, 0.55);
+}
+.tab-pane-section.is-hidden { display: none !important; }
+
+.stats-more > summary { list-style:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+  font-size:var(--fs-sm); text-transform:uppercase; letter-spacing:0.06em;
+  color:var(--clr-muted,#8a94a6); padding:2px 0; }
+.stats-more > summary::-webkit-details-marker { display:none; }
+.stats-more > summary::before { content:"\25B8"; font-size:var(--fs-sm); transition:transform 0.15s; }
+.stats-more[open] > summary::before { transform:rotate(90deg); }
+.stats-more > summary:hover { color:#c9d4e4; }
+
+/* ── Signal panel ──────────────────────────────────────────────────────
+   The verdict is one word and rarely changes; the inputs behind it are
+   what an operator actually reads. Size them accordingly. */
+.signal-head { display:flex; align-items:center; gap:14px; margin-bottom:12px; }
+.signal-head .signal-badge { font-size:var(--fs-lg); padding:5px 14px; flex:0 0 auto; }
+.signal-conf { flex:1 1 auto; min-width:0; }
+.signal-conf-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:5px; }
+.signal-conf-label { font-size:var(--fs-sm); text-transform:uppercase; letter-spacing:0.06em; color:var(--clr-muted,#8a94a6); }
+.signal-conf-value { font-weight:700; font-size:var(--fs-lg); }
+.signal-reason { font-size:var(--fs-lg); line-height:1.45; color:#c9d4e4;
+  padding:10px 12px; margin-bottom:14px; border-radius:var(--r-sm);
+  background:rgba(255,255,255,0.03); border-left:2px solid var(--clr-border,#2a3240); }
+.signal-inputs { display:grid; grid-template-columns:repeat(auto-fit,minmax(88px,1fr)); gap:10px; }
+.signal-input { text-align:center; padding:10px 6px; border-radius:var(--r-sm);
+  background:rgba(255,255,255,0.02); border:1px solid var(--clr-border,#2a3240); }
+.signal-input-label { font-size:var(--fs-xs); text-transform:uppercase; letter-spacing:0.06em;
+  color:var(--clr-muted,#8a94a6); margin-bottom:4px; }
+.signal-input-value { font-size:var(--fs-lg); font-weight:700; line-height:1.2; }
+/* A value that has never arrived should read as absent, not as data. */
+.signal-input-value:not(:has(*)):is(:empty), .signal-input-value { color:#e6edf7; }
+
+/* ── Placeholders ──────────────────────────────────────────────────────
+   An em dash that looks like a number invites misreading. Mute them so
+   "no value yet" is visually distinct from "the value is zero". */
+.stat-pill .value, .signal-input-value, .dashboard-strip-card .v { font-variant-numeric:tabular-nums; }
+.eq-pill {
+  border: 1px solid var(--clr-border);
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  min-height: 68px;
+}
+.eq-pill .k {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--clr-muted);
+  font-family: 'IBM Plex Mono', monospace;
+  margin-bottom: 4px;
+}
+.eq-pill .v {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--clr-text);
+}
+.eq-status {
+  border-radius: var(--r-sm);
+  padding: 2px 8px;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-family: 'IBM Plex Mono', monospace;
+  border: 1px solid var(--clr-border);
+  display: inline-block;
+}
+.eq-ok { color: var(--clr-green); border-color: rgba(125,229,181,0.45); background: rgba(125,229,181,0.12); }
+.eq-mismatch { color: var(--clr-red); border-color: rgba(255,146,160,0.46); background: rgba(255,146,160,0.12); }
+.eq-incomplete { color: var(--clr-yellow); border-color: rgba(255,197,156,0.45); background: rgba(255,197,156,0.12); }
+.maker-kv {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.maker-chip {
+  border: 1px solid var(--clr-border);
+  border-radius: var(--r-md);
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.04);
+}
+.maker-chip .k {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--clr-muted);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.maker-chip .v {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  margin-top: 2px;
+}
+.maker-note-stack {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+.maker-note {
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--r-md);
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.03);
+  line-height: 1.4;
+}
+.maker-live { color: var(--clr-green); }
+.maker-stale { color: var(--clr-red); }
+.maker-warn { color: var(--clr-yellow); }
+.nav-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--r-pill);
+  padding: 2px 8px;
+  font-size: var(--fs-sm);
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--clr-muted);
+  background: rgba(255,255,255,0.04);
+}
+.nav-select {
+  min-width: 110px;
+  font-size: var(--fs-sm);
+  padding: 2px 8px;
+  color: var(--clr-text);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--r-pill);
+}
+.dashboard-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+.dashboard-strip-card {
+  border: 1px solid var(--clr-border);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.04);
+  min-height: 76px;
+}
+.dashboard-strip-card .k {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--clr-muted);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.dashboard-strip-card .v {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  margin-top: 4px;
+  line-height: 1.25;
+}
+.dashboard-strip-card .sub {
+  margin-top: 4px;
+  font-size: var(--fs-sm);
+  color: var(--clr-muted);
+  line-height: 1.35;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
+}
+
+/* Theme is intentionally fixed to dark "space terminal". */

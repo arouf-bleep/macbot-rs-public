@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "version": "1.31.0",
+  "source": "https://github.com/microsoft/onnxruntime/releases/tag/v1.31.0",
+  "git_commit": "402979ac1bef89dcd55add41eaa7277c407599eb",
+  "targets": {
+    "macos-aarch64": {
+      "url": "https://github.com/microsoft/onnxruntime/releases/download/v1.31.0/onnxruntime-osx-arm64-1.31.0.tgz",
+      "archive_root": "./onnxruntime-osx-arm64-1.31.0",
+      "archive_sha256": "1031b36dd3bdaa8d976a6130d9cf2a05e9be320b93ae804f8427b91dc3432afc",
+      "archive_bytes": 36549009,
+      "library_name": "libonnxruntime.dylib",
+      "library_member": "./onnxruntime-osx-arm64-1.31.0/lib/libonnxruntime.1.31.0.dylib",
+      "extra_libraries": [],
+      "notices": [
+        {
+          "name": "ThirdPartyNotices.txt",
+          "member": "./onnxruntime-osx-arm64-1.31.0/ThirdPartyNotices.txt",
+          "sha256": "143764b952fdb1a7c69ce653bfba74a7744d6a8a573bfb73e235fba356c83de3",
+          "bytes": 338088
+        },
+        {
+          "name": "LICENSE",
+          "member": "./onnxruntime-osx-arm64-1.31.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c",
+          "bytes": 1073
+        }
+      ],
+      "library_sha256": "2a50a63e7f41f8d4d551d3ee47248df3864f6540109fce8ad520ca3b51af4b70",
+      "library_bytes": 44830288,
+      "build_revision": "402979a"
+    },
+    "linux-x86_64": {
+      "url": "https://github.com/microsoft/onnxruntime/releases/download/v1.31.0/onnxruntime-linux-x64-1.31.0.tgz",
+      "archive_root": "onnxruntime-linux-x64-1.31.0",
+      "archive_sha256": "cc5c72baf5ae5c8238a6841f0897227be2d02826b9cf98eaf02fdefaeeb03a57",
+      "archive_bytes": 11408003,
+      "library_name": "libonnxruntime.so",
+      "library_member": "onnxruntime-linux-x64-1.31.0/lib/libonnxruntime.so.1.31.0",
+      "extra_libraries": [
+        {
+          "name": "libonnxruntime_providers_shared.so",
+          "member": "onnxruntime-linux-x64-1.31.0/lib/libonnxruntime_providers_shared.so",
+          "sha256": "086ec1d5388f64153d9c63470d126693db9a182c8ce236d3a1119068471b8a0d",
+          "bytes": 14632
+        }
+      ],
+      "notices": [
+        {
+          "name": "ThirdPartyNotices.txt",
+          "member": "onnxruntime-linux-x64-1.31.0/ThirdPartyNotices.txt",
+          "sha256": "143764b952fdb1a7c69ce653bfba74a7744d6a8a573bfb73e235fba356c83de3",
+          "bytes": 338088
+        },
+        {
+          "name": "LICENSE",
+          "member": "onnxruntime-linux-x64-1.31.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c",
+          "bytes": 1073
+        }
+      ],
+      "library_sha256": "469849977cb60744ea160927e1a3a0643fd4c55c0aff743251c6d293402e334e",
+      "library_bytes": 29345384,
+      "build_revision": "402979a"
+    },
+    "linux-aarch64": {
+      "url": "https://github.com/microsoft/onnxruntime/releases/download/v1.31.0/onnxruntime-linux-aarch64-1.31.0.tgz",
+      "archive_root": "onnxruntime-linux-aarch64-1.31.0",
+      "archive_sha256": "c5b8b3cca31f3d643a3b313b8f42e2d0f16a4fcefd02cda343d97bd5306afaab",
+      "archive_bytes": 10331104,
+      "library_name": "libonnxruntime.so",
+      "library_member": "onnxruntime-linux-aarch64-1.31.0/lib/libonnxruntime.so.1.31.0",
+      "extra_libraries": [
+        {
+          "name": "libonnxruntime_providers_shared.so",
+          "member": "onnxruntime-linux-aarch64-1.31.0/lib/libonnxruntime_providers_shared.so",
+          "sha256": "3b6be288fbfb7dff8770d08a23defdde18e8f7e0f5a2b344a0e5e238c999ea88",
+          "bytes": 198792
+        }
+      ],
+      "notices": [
+        {
+          "name": "ThirdPartyNotices.txt",
+          "member": "onnxruntime-linux-aarch64-1.31.0/ThirdPartyNotices.txt",
+          "sha256": "143764b952fdb1a7c69ce653bfba74a7744d6a8a573bfb73e235fba356c83de3",
+          "bytes": 338088
+        },
+        {
+          "name": "LICENSE",
+          "member": "onnxruntime-linux-aarch64-1.31.0/LICENSE",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c",
+          "bytes": 1073
+        }
+      ],
+      "library_sha256": "595c7f7a6775f5c7b3d567c3ed94c04f722092575abcc092560f5208a54daf99",
+      "library_bytes": 25266408,
+      "build_revision": "402979a"
+    }
+  }
+}

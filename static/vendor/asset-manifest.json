@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "scope": "Exact distributed asset inventory and upstream provenance, not an independent audit of browser font parsers or every upstream function.",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1751,
+      "sha256": "3fcfa1871d007d0bf5fa521d683ddc93a0a3bab9eed3587d367250938d2e0e93",
+      "provenance": "first-party dependency documentation"
+    },
+    {
+      "path": "bootstrap-icons.min.css",
+      "bytes": 85875,
+      "sha256": "f643d6fe7e679f9de3e16311600c5ef5cd6b098f7a3a8828fcc29255d2b33e62",
+      "source": "https://registry.npmjs.org/bootstrap-icons/-/bootstrap-icons-1.11.3.tgz",
+      "provenance": "exact package font/bootstrap-icons.min.css"
+    },
+    {
+      "path": "bootstrap.bundle.min.js",
+      "bytes": 80663,
+      "sha256": "82f64f62bb03c1bc1824b0f9c9e05f70dba33e146818e63cdf5c306c8cf3dedd",
+      "source": "https://raw.githubusercontent.com/twbs/bootstrap/v5.3.2/dist/js/bootstrap.bundle.min.js",
+      "provenance": "exact published bytes"
+    },
+    {
+      "path": "bootstrap.min.css",
+      "bytes": 232948,
+      "sha256": "3017df4a76db5f01c2b99b603d88b03106df13bcfe18e67b7c13c2341d3a67df",
+      "source": "https://raw.githubusercontent.com/twbs/bootstrap/v5.3.2/dist/css/bootstrap.min.css",
+      "provenance": "exact published bytes"
+    },
+    {
+      "path": "chart.umd.min.js",
+      "bytes": 205488,
+      "sha256": "08dfa4730571b23810c34fc39c5101461ecafca56c3f92caf4850509cb158f30",
+      "source": "https://registry.npmjs.org/chart.js/-/chart.js-4.4.2.tgz",
+      "provenance": "exact package dist/chart.umd.js after 274-byte jsDelivr header"
+    },
+    {
+      "path": "fonts/-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+      "bytes": 10052,
+      "sha256": "c36f509c0a8f9f85f29cb44bc8701d8a9e0b14c499e77a884f789ead7093a7ac",
+      "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/-F63fjptAgt5VM-kVkqdyU8n1iAq131nj-otFQ.woff2",
+      "bytes": 4000,
+      "sha256": "0a8b854cc18641bd1b8222afa7ec82a75e59bc6501f777744ec87db1b6cd7a2c",
+      "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1iAq131nj-otFQ.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/-F63fjptAgt5VM-kVkqdyU8n1iEq131nj-otFQ.woff2",
+      "bytes": 8860,
+      "sha256": "f1050dc5317b43434c0aeda599d4624c774ffc162e87a8cf204b949b6a85816d",
+      "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1iEq131nj-otFQ.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/-F63fjptAgt5VM-kVkqdyU8n1iIq131nj-otFQ.woff2",
+      "bytes": 4348,
+      "sha256": "c6f09ee0e0a24b7c85ecb2a601eb99332f65b1f6b37c31e0bbe73fb307625eca",
+      "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1iIq131nj-otFQ.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/-F63fjptAgt5VM-kVkqdyU8n1isq131nj-otFQ.woff2",
+      "bytes": 5476,
+      "sha256": "7b59d6bf7f8b8408ac28f27d01dca9a890abeae77045d343b1d8ccb089a92e54",
+      "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1isq131nj-otFQ.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/-F6qfjptAgt5VM-kVkqdyU8n3twJwl1FgsAXHNlYzg.woff2",
+      "bytes": 4336,
+      "sha256": "311098be73eac339128f0b5a6e33d72645b6f87488541fdf467c402152d297fd",
+      "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJwl1FgsAXHNlYzg.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/-F6qfjptAgt5VM-kVkqdyU8n3twJwl5FgsAXHNlYzg.woff2",
+      "bytes": 8848,
+      "sha256": "77f03e26f981c582bdba3a7abed4baa2d3149211c01366bb3ab3ba7622ec4ae5",
+      "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJwl5FgsAXHNlYzg.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/-F6qfjptAgt5VM-kVkqdyU8n3twJwl9FgsAXHNlYzg.woff2",
+      "bytes": 4036,
+      "sha256": "b2529fba93fd07a50ffb8fc3d103eb04b0c298d4f6564d2833c44fde286de7e4",
+      "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJwl9FgsAXHNlYzg.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+      "bytes": 10060,
+      "sha256": "a76f53ca6612e7b3828eec2311098675b7f9849ae4169a8bcef6302aec02a6c0",
+      "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/-F6qfjptAgt5VM-kVkqdyU8n3twJwlRFgsAXHNlYzg.woff2",
+      "bytes": 5500,
+      "sha256": "d524dc8ff6dbf7ed69772f3b2ff4affaf5a89b5762b270e36c3f21da0d4e39f5",
+      "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJwlRFgsAXHNlYzg.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/-F6qfjptAgt5VM-kVkqdyU8n3vAOwl1FgsAXHNlYzg.woff2",
+      "bytes": 4320,
+      "sha256": "f746246b6b0b641f99d9e26e0bf4e42197bde692126857857f0195a94362d52a",
+      "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3vAOwl1FgsAXHNlYzg.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/-F6qfjptAgt5VM-kVkqdyU8n3vAOwl5FgsAXHNlYzg.woff2",
+      "bytes": 8960,
+      "sha256": "1b6b18fd0fd240bc6d5850f4df621484722d4b5d3650ebdd1e3a8bbd81c75854",
+      "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3vAOwl5FgsAXHNlYzg.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/-F6qfjptAgt5VM-kVkqdyU8n3vAOwl9FgsAXHNlYzg.woff2",
+      "bytes": 4116,
+      "sha256": "69744cabbccc9faf77516ce9b744361e1e6be7f8081400006035a153797d2965",
+      "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3vAOwl9FgsAXHNlYzg.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2",
+      "bytes": 10120,
+      "sha256": "ad4580d8cb4b5f627c2d18457656732f7f7b070f7837fbc380e08054157e6f6c",
+      "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/-F6qfjptAgt5VM-kVkqdyU8n3vAOwlRFgsAXHNlYzg.woff2",
+      "bytes": 5548,
+      "sha256": "b814a03d7e57b0626a906f76911b9361d173a1aabc5544c40f72d6a35a1e4940",
+      "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3vAOwlRFgsAXHNlYzg.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/V8mDoQDjQSkFtoMM3T6r8E7mPb54C_k3HqUtEw.woff2",
+      "bytes": 6772,
+      "sha256": "d699664b145bfeeccc66a4cce7fa55e14eb63efd7ec6b0b2ec52e25dd98f3917",
+      "source": "https://fonts.gstatic.com/s/spacegrotesk/v22/V8mDoQDjQSkFtoMM3T6r8E7mPb54C_k3HqUtEw.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/V8mDoQDjQSkFtoMM3T6r8E7mPb94C_k3HqUtEw.woff2",
+      "bytes": 18924,
+      "sha256": "054c266fbb441ee059365dba0885d206f67ca05b375de869b88e02ebfccc9b9d",
+      "source": "https://fonts.gstatic.com/s/spacegrotesk/v22/V8mDoQDjQSkFtoMM3T6r8E7mPb94C_k3HqUtEw.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/V8mDoQDjQSkFtoMM3T6r8E7mPbF4C_k3HqU.woff2",
+      "bytes": 22320,
+      "sha256": "a0d054c4af557de20afd6ca59f47ab353bcaec49c63ff04b6c9d39d0f8910557",
+      "source": "https://fonts.gstatic.com/s/spacegrotesk/v22/V8mDoQDjQSkFtoMM3T6r8E7mPbF4C_k3HqU.woff2",
+      "provenance": "exact upstream font bytes"
+    },
+    {
+      "path": "fonts/bootstrap-icons.woff",
+      "bytes": 176032,
+      "sha256": "bb1de989b83970f6f4e54de1cd974c5cba55b73582da5e1b225a6d0edf029483",
+      "source": "https://registry.npmjs.org/bootstrap-icons/-/bootstrap-icons-1.11.3.tgz",
+      "provenance": "exact package font/fonts/bootstrap-icons.woff"
+    },
+    {
+      "path": "fonts/bootstrap-icons.woff2",
+      "bytes": 130396,
+      "sha256": "476adf42b40325098fcfa8b36ab3e769186bb4f6ce6a249753e2e1a9c22bf99e",
+      "source": "https://registry.npmjs.org/bootstrap-icons/-/bootstrap-icons-1.11.3.tgz",
+      "provenance": "exact package font/fonts/bootstrap-icons.woff2"
+    },
+    {
+      "path": "fonts.css",
+      "bytes": 10090,
+      "sha256": "e267efdf5a0ff6dffc84f93cd743c9bc762b67e81cf3c2ad553b2eec87b2b763",
+      "source": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap",
+      "provenance": "local URL adaptation; current CSS unicode ranges differ"
+    },
+    {
+      "path": "licenses/bootstrap-icons.txt",
+      "bytes": 1093,
+      "sha256": "0fb3e11bd57e896c5a512afd64864d28a37de45d19835016c87ca1ad19ead969",
+      "source": "https://raw.githubusercontent.com/twbs/icons/v1.11.3/LICENSE",
+      "provenance": "retained upstream licence text"
+    },
+    {
+      "path": "licenses/bootstrap.txt",
+      "bytes": 1093,
+      "sha256": "3d0b0c88216e4752b9afd3d24e36faaf27873b5a45a61458bb3c83e794c26832",
+      "source": "https://raw.githubusercontent.com/twbs/bootstrap/v5.3.2/LICENSE",
+      "provenance": "retained upstream licence text"
+    },
+    {
+      "path": "licenses/chartjs.txt",
+      "bytes": 1093,
+      "sha256": "5a0877ad6d818529be4f33009d0942cdf7e2ed7656156f4aba7308459a546030",
+      "source": "https://raw.githubusercontent.com/chartjs/Chart.js/v4.4.2/LICENSE.md",
+      "provenance": "retained upstream licence text"
+    },
+    {
+      "path": "licenses/ibm-plex-mono.txt",
+      "bytes": 4362,
+      "sha256": "d741e57d5f865e294df801f96b7b5161a88b211df65887e4358d271c9fc5fb4f",
+      "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/OFL.txt",
+      "provenance": "retained upstream licence text"
+    },
+    {
+      "path": "licenses/kurkle-color.txt",
+      "bytes": 1085,
+      "sha256": "2859c50313bad2ba77b081410c477beaf92b60ca13a77a248d89859a6dd6ac81",
+      "source": "https://registry.npmjs.org/@kurkle/color/-/color-0.3.2.tgz",
+      "provenance": "retained upstream licence text"
+    },
+    {
+      "path": "licenses/popper.txt",
+      "bytes": 1082,
+      "sha256": "bf67e2c9b7974543bb18ced3a0b37f53729aaff953b442dd89a3adaf90fd93e8",
+      "source": "https://registry.npmjs.org/@popperjs/core/-/core-2.11.8.tgz",
+      "provenance": "retained upstream licence text"
+    },
+    {
+      "path": "licenses/sources.json",
+      "bytes": 635,
+      "sha256": "61be6cc92504208b80d663643e57e04d439907157746a7c850a1140e21bf1908",
+      "provenance": "first-party dependency documentation"
+    },
+    {
+      "path": "licenses/space-grotesk.txt",
+      "bytes": 4401,
+      "sha256": "18a4de52385f6b988782639d5d0cc1326e5a8c2de9a7f01d7b20d9aedcc60943",
+      "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/spacegrotesk/OFL.txt",
+      "provenance": "retained upstream licence text"
+    }
+  ]
+}

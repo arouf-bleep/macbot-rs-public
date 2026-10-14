@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Macbot</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f1219'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%237de5b5'/%3E%3C/svg%3E" />
+  <!-- Bootstrap 5.3 -->
+  <link rel="stylesheet" href="/static/vendor/bootstrap.min.css" />
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="/static/vendor/bootstrap-icons.min.css" />
+  <!-- Chart.js -->
+  <script src="/static/vendor/chart.umd.min.js"></script>
+  <!-- Fonts -->
+  <link rel="stylesheet" href="/static/vendor/fonts.css">
+  <!-- Visual system prototype; remove this one line to A/B against the original. -->
+  <link rel="stylesheet" href="/static/dashboard.css">
+  <!-- Visual system, loaded last so it overrides the base. Remove this one
+       line to A/B against the original styling. -->
+  <link rel="stylesheet" href="/static/redesign.css">
+</head>
+<body>
+
+<!-- ── Navbar ──────────────────────────────────────────────────────────────── -->
+<nav class="navbar navbar-expand-lg px-3 py-2">
+  <span class="navbar-brand">Macbot</span>
+  <div class="dashboard-controls d-flex align-items-center gap-3 ms-auto">
+    <span id="mode-badge" class="mode-badge mode-sim">SIM</span>
+    <div class="d-flex align-items-center gap-2">
+      <span class="text-muted" style="font-size:var(--fs-sm);">Exec</span>
+      <select id="nav-exec-mode" class="form-select form-select-sm nav-select" onchange="updateExecutionMode(this.value)">
+        <option value="taker">taker</option>
+        <option value="maker">maker</option>
+        <option value="hybrid">hybrid</option>
+      </select>
+      <span id="nav-exec-auth-hint" class="text-muted" style="font-size:var(--fs-xs); display:none;">controls locked</span>
+    </div>
+    <button id="btn-dashboard-auth" class="btn btn-sm dashboard-auth-btn" type="button"
+            onclick="openDashboardUnlock()" title="Dashboard access for this browser">
+      <i class="bi bi-shield-lock"></i> <span id="dashboard-auth-label">Unlock</span>
+    </button>
+    <span class="text-muted" style="font-size:var(--fs-sm);">Balance:</span>
+    <span id="nav-balance" class="fw-bold text-success">$-.--</span>
+    <div class="d-flex gap-2">
+      <button id="btn-start" class="btn btn-sm btn-outline-success" onclick="loopControl('start')">
+        <i class="bi bi-play-fill"></i> Start
+      </button>
+      <button id="btn-stop" class="btn btn-sm btn-outline-danger" onclick="loopControl('stop')">
+        <i class="bi bi-stop-fill"></i> Stop
+      </button>
+      <button id="btn-reset-dd" class="btn btn-sm btn-outline-warning" onclick="resetDrawdown()" title="Reset drawdown halt baseline">
+        Reset DD
+      </button>
+    </div>
+    <span id="cb-cooldown-badge" class="badge bg-warning text-dark" style="display:none;font-size:var(--fs-xs);">
+      <i class="bi bi-pause-circle"></i> CB PAUSED <span id="cb-cooldown-mins"></span>
+    </span>
+    <span class="nav-chip">
+      <span id="nav-l2-status">L2 —</span>
+      <span id="nav-l2-age">—</span>
+    </span>
+    <span class="nav-chip">
+      <span id="nav-pricebus-status">PX —</span>
+      <span id="nav-pricebus-age">—</span>
+    </span>
+    <span class="nav-chip">
+      <span id="nav-integrity-status">Integrity —</span>
+      <span id="nav-integrity-detail">—</span>
+    </span>
+    <span class="data-status" id="data-status" role="status" aria-live="polite" title="Whether these figures are current">
+      <span id="sse-dot"></span>
+      <span id="sse-status">connecting</span>
+      <span class="data-age" id="data-age"></span>
+    </span>
+  </div>
+</nav>
+
+<!-- ── Toast container ────────────────────────────────────────────────────── -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container"></div>
+
+<!-- Dashboard credentials live only in this browser. The secret is optional:
+     read access should not require granting control access. -->
+<div class="modal fade" id="dashboard-auth-modal" tabindex="-1" aria-labelledby="dashboard-auth-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content dashboard-auth-modal">
+      <form id="dashboard-auth-form" onsubmit="submitDashboardUnlock(event)">
+        <div class="modal-header">
+          <div>
+            <div class="dashboard-auth-eyebrow">Browser access</div>
+            <h2 class="modal-title" id="dashboard-auth-title">Unlock dashboard</h2>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="dashboard-auth-copy">The API key enables live figures. Add the optional secret only if this browser should also control the bot.</p>
+          <label class="form-label" for="dashboard-api-key">API key</label>
+          <input class="form-control mb-2" id="dashboard-api-key" type="password" autocomplete="off" required>
+          <div class="form-text mb-3">Used to read protected data and connect the live stream.</div>
+
+          <label class="form-label" for="dashboard-api-secret">API secret <span class="text-muted">(optional)</span></label>
+          <input class="form-control mb-2" id="dashboard-api-secret" type="password" autocomplete="off">
+          <div class="form-text mb-3">Required for actions such as changing mode, stopping the loop, or saving configuration.</div>
+
+          <div class="form-check">
+            <input class="form-check-input" id="dashboard-auth-remember" type="checkbox">
+            <label class="form-check-label" for="dashboard-auth-remember">Remember on this browser</label>
+          </div>
+          <div class="dashboard-auth-error mt-3" id="dashboard-auth-error" role="alert" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-sm btn-outline-danger me-auto" id="btn-dashboard-lock" type="button" onclick="lockDashboardBrowser()">Lock this browser</button>
+          <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-sm btn-success" id="btn-dashboard-unlock" type="submit">Unlock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ── Main layout ────────────────────────────────────────────────────────── -->
+<div class="container-fluid px-3 py-3" style="max-width:1600px;">
+
+  <!-- Row 1: Stats bar.
+       Six figures answer the glance questions: is it trading, is it winning,
+       is it making money, and how much has it given back. The strategy
+       breakdown and research statistics are detail, so they live behind a
+       disclosure rather than competing for the same attention. -->
+  <div class="d-flex flex-wrap gap-2 mb-2" id="stats-bar">
+    <div class="stat-pill"><div class="label">Total Trades</div><div class="value" id="st-total">—</div></div>
+    <div class="stat-pill"><div class="label">Win Rate</div><div class="value" id="st-winrate">—</div></div>
+    <div class="stat-pill"><div class="label">Closed P&amp;L</div><div class="value" id="st-pnl">—</div></div>
+    <div class="stat-pill"><div class="label">Realized today</div><div class="value" id="st-daily">—</div></div>
+    <div class="stat-pill"><div class="label">Max DD</div><div class="value" id="st-maxdd">—</div></div>
+    <div class="stat-pill"><div class="label">Open Pos.</div><div class="value" id="st-open">—</div></div>
+  </div>
+  <details class="stats-more mb-3">
+    <summary>Strategy breakdown and research statistics</summary>
+    <div class="d-flex flex-wrap gap-2 mt-2">
+      <div class="stat-pill"><div class="label" title="Unannualized mean / standard deviation of per-trade dollar P&amp;L">P&amp;L ratio</div><div class="value" id="st-sharpe">—</div></div>
+      <div class="stat-pill"><div class="label">Conv P&amp;L</div><div class="value" id="st-conv-pnl">—</div></div>
+      <div class="stat-pill"><div class="label">Scalp P&amp;L</div><div class="value" id="st-scalp-pnl">—</div></div>
+      <div class="stat-pill"><div class="label">Conv WR</div><div class="value" id="st-conv-wr">—</div></div>
+      <div class="stat-pill"><div class="label">Scalp WR</div><div class="value" id="st-scalp-wr">—</div></div>
+    </div>
+  </details>
+
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+    <div class="terminal-tabs" id="terminal-tabs">
+      <button class="terminal-tab is-active" data-tab="overview" type="button">Overview</button>
+      <button class="terminal-tab" data-tab="tape" type="button">Tape</button>
+      <button class="terminal-tab" data-tab="report" type="button">Report</button>
+      <button class="terminal-tab" data-tab="maker" type="button">Maker Desk</button>
+      <button class="terminal-tab" data-tab="execution" type="button">Execution</button>
+      <button class="terminal-tab" data-tab="risk" type="button">Risk</button>
+      <button class="terminal-tab" data-tab="signals" type="button">Signals</button>
+      <button class="terminal-tab" data-tab="model" type="button">Model</button>
+      <button class="terminal-tab" data-tab="config" type="button">Config</button>
+    </div>
+    <div class="small text-muted" id="tab-hint">Live view of the running bot.</div>
+  </div>
+
+  <div class="stale-banner" id="stale-banner" role="status" aria-live="polite" hidden></div>
+
+  <div class="dashboard-strip mb-3" id="dashboard-strip">
+    <div class="dashboard-strip-card">
+      <div class="k">Session Boundary</div>
+      <div class="v" id="dash-session-boundary">ALL HISTORY</div>
+      <div class="sub" id="dash-session-boundary-sub">No persisted cutoff.</div>
+    </div>
+    <div class="dashboard-strip-card">
+      <div class="k">Current Session</div>
+      <div class="v" id="dash-session-summary">—</div>
+      <div class="sub" id="dash-session-sub">Waiting for trade history…</div>
+    </div>
+    <div class="dashboard-strip-card">
+      <div class="k">Past Sessions</div>
+      <div class="v" id="dash-archive-summary">—</div>
+      <div class="sub" id="dash-archive-sub">Waiting for archived history…</div>
+    </div>
+    <div class="dashboard-strip-card">
+      <div class="k">Control State</div>
+      <div class="v" id="dash-control-summary">—</div>
+      <div class="sub" id="dash-control-sub">Waiting for runtime state…</div>
+    </div>
+  </div>
+
+  <!-- Row M: Maker engine -->
+  <div class="row g-3 mb-3 tab-pane-section" id="maker-cockpit-row" data-tab-pane="maker">
+    <div class="col-xl-4">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-bullseye me-1"></i>Maker Engine Control</div>
+        <div class="card-body">
+          <div class="maker-kv">
+            <div class="maker-chip"><div class="k">Mode</div><div class="v" id="maker-exec-mode">—</div></div>
+            <div class="maker-chip"><div class="k">L2 Feed</div><div class="v" id="maker-l2-status">—</div></div>
+            <div class="maker-chip"><div class="k">Feed Age</div><div class="v" id="maker-l2-age">—</div></div>
+            <div class="maker-chip"><div class="k">Quotes</div><div class="v" id="maker-quote-count">—</div></div>
+            <div class="maker-chip"><div class="k">Replace/Min</div><div class="v" id="maker-replace-min">—</div></div>
+            <div class="maker-chip"><div class="k">Markets</div><div class="v" id="maker-market-count">—</div></div>
+            <div class="maker-chip"><div class="k">Targets</div><div class="v" id="maker-target-markets">—</div></div>
+            <div class="maker-chip"><div class="k">L2 Books</div><div class="v" id="maker-book-shape">—</div></div>
+            <div class="maker-chip"><div class="k">Ready</div><div class="v" id="maker-quoteable-state">—</div></div>
+            <div class="maker-chip"><div class="k">No-Trade Truth</div><div class="v" id="maker-no-trade-label">—</div></div>
+            <div class="maker-chip"><div class="k">Primary Blocker</div><div class="v" id="maker-not-ready">—</div></div>
+            <div class="maker-chip"><div class="k">Roll State</div><div class="v" id="maker-roll-state">—</div></div>
+            <div class="maker-chip"><div class="k">Roll Signal</div><div class="v" id="maker-roll-signal">—</div></div>
+            <div class="maker-chip"><div class="k">A/B Candidate</div><div class="v" id="maker-ab-candidate">—</div></div>
+            <div class="maker-chip"><div class="k">A/B Verdict</div><div class="v" id="maker-ab-verdict">—</div></div>
+            <div class="maker-chip"><div class="k">A/B ΔAdverse</div><div class="v" id="maker-ab-adverse">—</div></div>
+            <div class="maker-chip"><div class="k">A/B ΔQuotes</div><div class="v" id="maker-ab-quotes">—</div></div>
+            <div class="maker-chip"><div class="k">Rollout Gate</div><div class="v" id="maker-rollout-verdict">—</div></div>
+            <div class="maker-chip"><div class="k">Gate Phase</div><div class="v" id="maker-rollout-phase">—</div></div>
+            <div class="maker-chip"><div class="k">Gate Stop</div><div class="v" id="maker-rollout-stop">—</div></div>
+            <div class="maker-chip"><div class="k">Blockers</div><div class="v" id="maker-rollout-blockers">—</div></div>
+            <div class="maker-chip"><div class="k">Gate Rounds</div><div class="v" id="maker-rollout-rounds">—</div></div>
+            <div class="maker-chip"><div class="k">Shutdown Proof</div><div class="v" id="maker-shutdown-proof">—</div></div>
+          </div>
+          <div class="maker-note-stack">
+            <div class="maker-note small text-muted" id="maker-stale-reason">—</div>
+            <div class="maker-note small text-muted" id="maker-feed-note">Waiting for feed truth…</div>
+            <div class="maker-note small text-muted" id="maker-no-trade-note">Waiting for no-trade truth…</div>
+            <div class="maker-note small text-muted" id="maker-shutdown-note">Waiting for shutdown proof status…</div>
+            <div class="maker-note small text-muted" id="maker-ab-note">Waiting for maker A/B summary…</div>
+            <div class="maker-note small text-muted" id="maker-rollout-note">Waiting for maker rollout gate…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-layers-half me-1"></i>L2 Top of Book</div>
+        <div class="trade-table-wrapper" style="max-height:220px;">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>Token</th><th>Bid</th><th>Ask</th><th>Spread</th></tr></thead>
+            <tbody id="maker-bbo-tbody"><tr><td colspan="4" class="text-muted text-center py-3">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-grid-1x2-fill me-1"></i>Active Grid Quotes</div>
+        <div class="trade-table-wrapper" style="max-height:220px;">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>Side</th><th>Px</th><th>Size</th><th>Order</th></tr></thead>
+            <tbody id="maker-quotes-tbody"><tr><td colspan="4" class="text-muted text-center py-3">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header"><i class="bi bi-activity me-1"></i>Recent Quote Telemetry</div>
+        <div class="trade-table-wrapper" style="max-height:240px;">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>Time</th><th>Event</th><th>Side</th><th>Reason</th><th>Age</th><th>Adverse</th><th>Basis</th><th>Order</th></tr></thead>
+            <tbody id="maker-telemetry-tbody"><tr><td colspan="8" class="text-muted text-center py-3">Waiting for quote telemetry…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Row 2: Signal panel + Breakdown -->
+  <div class="row g-3 mb-3 tab-pane-section" id="signal-row" data-tab-pane="overview">
+    <!-- Signal panel -->
+    <div class="col-lg-5">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-broadcast me-1"></i>Current Signal</div>
+        <div class="card-body">
+          <!-- The market and its clock lead, because in a fifteen-minute binary
+               the countdown governs every decision that follows it. -->
+          <div class="mkt-head">
+            <div id="mkt-question" class="mkt-question">No active market</div>
+            <div class="mkt-clock">
+              <span id="mkt-countdown" class="mkt-countdown">&mdash;</span>
+              <span class="mkt-clock-unit">left of 15:00</span>
+            </div>
+            <div class="mkt-track"><i id="mkt-track-fill"></i></div>
+          </div>
+
+          <!-- Each token uses its observed book price. The model probability
+               sits under each outcome; missing quotes remain unknown. -->
+          <div class="odds">
+            <div class="odd" id="odd-yes">
+              <div class="odd-side">Yes &middot; up</div>
+              <div class="odd-price" id="odds-yes">&mdash;</div>
+              <div class="odd-model">model <span id="odds-yes-model">&mdash;</span></div>
+            </div>
+            <div class="odd" id="odd-no">
+              <div class="odd-side">No &middot; down</div>
+              <div class="odd-price" id="odds-no">&mdash;</div>
+              <div class="odd-model">model <span id="odds-no-model">&mdash;</span></div>
+            </div>
+          </div>
+
+          <!-- Verdict is a badge, not a billboard: it is the least informative
+               thing here. The inputs that produced it get the space. -->
+          <div class="signal-head">
+            <div id="signal-badge" class="signal-badge signal-HOLD">HOLD</div>
+            <div class="signal-conf">
+              <div class="signal-conf-row">
+                <span class="signal-conf-label" title="Signal quality score; model win probability is shown under each outcome">Signal quality</span>
+                <span id="sig-confidence" class="signal-conf-value">—</span>
+              </div>
+              <div class="progress" style="height:5px; background:rgba(255,255,255,0.08);">
+                <div id="sig-conf-bar" class="progress-bar bg-success" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+          <div id="sig-reason" class="signal-reason">—</div>
+          <div class="signal-inputs">
+            <div class="signal-input">
+              <div class="signal-input-label">Regime</div>
+              <div id="sig-regime" class="signal-input-value">—</div>
+            </div>
+            <div class="signal-input">
+              <div class="signal-input-label">BTC &#916;%</div>
+              <div id="sig-btc-change" class="signal-input-value">—</div>
+            </div>
+            <div class="signal-input">
+              <div class="signal-input-label">Mins Left</div>
+              <div id="sig-mins-left" class="signal-input-value">—</div>
+            </div>
+            <div class="signal-input">
+              <div class="signal-input-label">Phase</div>
+              <div id="sig-phase" class="signal-input-value">—</div>
+            </div>
+            <div class="signal-input">
+              <div class="signal-input-label">EV</div>
+              <div id="sig-ev" class="signal-input-value">—</div>
+            </div>
+          </div>
+          <!-- Manual trade trigger -->
+          <div class="mt-3 d-flex gap-2">
+            <button id="btn-execute" class="btn btn-sm btn-outline-success w-50" onclick="executeCurrentTrade()">
+              <i class="bi bi-lightning-fill"></i> Execute
+            </button>
+            <button id="btn-refresh" class="btn btn-sm btn-outline-secondary w-50" onclick="triggerAnalysis()">
+              <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signal Breakdown -->
+    <div class="col-lg-7">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-bar-chart-fill me-1"></i>What moved the call</div>
+        <div class="card-body py-2" id="weights-container">
+          <!-- Populated by JS. The idle copy explains why it is empty rather
+               than implying something is loading that never will. -->
+          <div class="panel-idle">
+            <div class="panel-idle-line">No signal breakdown yet.</div>
+            <div class="panel-idle-sub">Each signal&rsquo;s contribution appears here once a market is open and an analysis cycle has run.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Row 3: BTC price stream -->
+  <div class="row g-3 mb-3 tab-pane-section" id="btc-row" data-tab-pane="overview">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-currency-bitcoin" style="color:var(--clr-yellow);font-size:var(--fs-lg);"></i>
+            <span>BTC Price Stream</span>
+            <span id="btc-market-question" class="text-muted fw-normal" style="font-size:var(--fs-sm); max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+          </div>
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div><span class="text-muted" style="font-size:var(--fs-sm);">Price to Beat</span><span id="btc-start-price" class="fw-bold ms-1" style="font-size:var(--fs-lg);">—</span><span id="btc-start-source" class="text-muted ms-1" style="font-size:var(--fs-xs);"></span></div>
+            <div><span class="text-muted" style="font-size:var(--fs-sm);">Current</span><span id="btc-current-price" class="fw-bold ms-1" style="font-size:var(--fs-lg); color:var(--clr-yellow);">—</span></div>
+            <span id="btc-price-change" class="fw-bold" style="font-size:var(--fs-lg); min-width:70px; text-align:right;">—</span>
+          </div>
+        </div>
+        <div class="card-body p-2">
+          <div style="position:relative; height:190px;">
+            <canvas id="btc-chart"></canvas>
+          </div>
+          <div class="row g-2 mt-2 px-1 pb-1">
+            <div class="col-md-3">
+              <div class="eq-pill">
+                <div class="k">Feed Health</div>
+                <div class="v" id="btc-feed-status">—</div>
+                <div class="small text-muted mt-1" id="btc-feed-detail">Waiting for live price bus…</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="eq-pill">
+                <div class="k">Price vs Beat</div>
+                <div class="v" id="btc-price-to-beat-distance">—</div>
+                <div class="small text-muted mt-1" id="btc-price-to-beat-distance-detail">Distance from the current price to beat</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="eq-pill">
+                <div class="k">Futures Basis</div>
+                <div class="v" id="btc-futures-basis">—</div>
+                <div class="small text-muted mt-1" id="btc-futures-basis-detail">Contango / backwardation telemetry</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="eq-pill">
+                <div class="k">Mark / Index</div>
+                <div class="v" id="btc-futures-mark-index">—</div>
+                <div class="small text-muted mt-1" id="btc-futures-mark-index-detail">Binance premium index context</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3: PnL Chart + Open Trades -->
+  <div class="row g-3 mb-3 tab-pane-section" id="positions-row" data-tab-pane="overview execution">
+    <!-- PnL Chart -->
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-header"><i class="bi bi-graph-up me-1"></i>Cumulative P&amp;L</div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="pnl-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Open Positions -->
+    <div class="col-lg-5">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-folder-fill me-1"></i>Open Positions</span>
+          <button class="btn btn-sm btn-outline-danger" onclick="closeAllTrades()" style="font-size:var(--fs-sm); padding:2px 8px;">
+            Close All
+          </button>
+        </div>
+        <div class="trade-table-wrapper">
+          <table class="table table-hover mb-0">
+            <thead><tr>
+              <th>ID</th><th>Strat</th><th>Dir</th><th>Entry</th><th>Live</th><th title="Fresh book mark, before entry and future exit fees">Mark P&amp;L</th><th>Amount</th><th>Action</th>
+            </tr></thead>
+            <tbody id="open-trades-tbody">
+              <tr><td colspan="7" class="text-muted text-center py-3">No open positions</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 4: Trade History -->
+  <div class="row g-3 mb-3 tab-pane-section" id="history-row" data-tab-pane="overview execution">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-clock-history me-1"></i>Trade History</span>
+          <div class="d-flex gap-2 align-items-center">
+            <select id="history-filter" class="form-select form-select-sm" style="width:120px;" onchange="renderHistory()">
+              <option value="ALL">All</option>
+              <option value="CLOSED">Closed</option>
+              <option value="OPEN">Open</option>
+            </select>
+            <select id="history-strategy-filter" class="form-select form-select-sm" style="width:120px;" onchange="renderHistory()">
+              <option value="ALL">All Strategies</option>
+              <option value="conviction">Conviction</option>
+              <option value="scalp">Scalp</option>
+            </select>
+
+            <button class="btn btn-sm btn-outline-success" onclick="newSession()" style="font-size:var(--fs-sm); padding:2px 8px;" title="Starts a new session, keeps database history, and saves the session cutoff across restarts.">
+              New Session
+            </button>
+          </div>
+        </div>
+        <div class="trade-table-wrapper">
+          <table class="table table-hover mb-0">
+            <thead><tr>
+              <th>ID</th><th>Strat</th><th>Time</th><th>Dir</th><th>Entry</th><th>Exit</th>
+              <th>P&amp;L</th><th>Conf</th><th>Status</th><th>Exit Type</th><th>Action</th>
+            </tr></thead>
+            <tbody id="history-tbody">
+              <tr><td colspan="11" class="text-muted text-center py-3">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Archived trades (previous sessions) -->
+        <div id="archived-trades-section" style="display:none;">
+          <div class="card-header d-flex align-items-center justify-content-between"
+               style="cursor:pointer; background:rgba(255,255,255,0.03); border-top:1px solid var(--clr-border); padding:8px 16px;"
+               onclick="document.getElementById('archived-tbody-wrap').style.display = document.getElementById('archived-tbody-wrap').style.display === 'none' ? 'block' : 'none'; this.querySelector('.bi').classList.toggle('bi-chevron-down'); this.querySelector('.bi').classList.toggle('bi-chevron-right');">
+            <span style="font-size:var(--fs-sm); text-transform:uppercase; letter-spacing:1px; color:var(--clr-muted);">
+              <i class="bi bi-chevron-right me-1"></i>Past Sessions (<span id="archived-count">0</span> trades, P&L: <span id="archived-pnl">$0.00</span>)
+            </span>
+          </div>
+          <div id="archived-tbody-wrap" style="display:none;">
+            <div class="trade-table-wrapper">
+              <table class="table table-hover mb-0" style="opacity:0.6;">
+                <thead><tr>
+                  <th>ID</th><th>Strat</th><th>Time</th><th>Dir</th><th>Entry</th><th>Exit</th>
+                  <th>P&amp;L</th><th>Conf</th><th>Status</th><th>Exit Type</th>
+                </tr></thead>
+                <tbody id="archived-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3 tab-pane-section is-hidden" id="execution-quality-row" data-tab-pane="execution">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <span><i class="bi bi-shield-check me-1"></i>Execution Quality</span>
+          <button class="btn btn-sm btn-outline-secondary" onclick="loadExecutionQuality()" style="font-size:var(--fs-sm); padding:2px 10px;">
+            <i class="bi bi-arrow-repeat"></i> Refresh
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="row g-2 mb-3">
+            <div class="col-sm-6 col-xl-2"><div class="eq-pill"><div class="k">Checked</div><div class="v" id="eq-checked">—</div></div></div>
+            <div class="col-sm-6 col-xl-2"><div class="eq-pill"><div class="k">OK</div><div class="v" id="eq-ok">—</div></div></div>
+            <div class="col-sm-6 col-xl-2"><div class="eq-pill"><div class="k">Mismatch</div><div class="v" id="eq-mismatch">—</div></div></div>
+            <div class="col-sm-6 col-xl-2"><div class="eq-pill"><div class="k">Incomplete</div><div class="v" id="eq-incomplete">—</div></div></div>
+            <div class="col-sm-6 col-xl-2"><div class="eq-pill"><div class="k">Avg Entry Drift</div><div class="v" id="eq-entry-drift">—</div></div></div>
+            <div class="col-sm-6 col-xl-2"><div class="eq-pill"><div class="k">Avg Exit Drift</div><div class="v" id="eq-exit-drift">—</div></div></div>
+          </div>
+          <div class="trade-table-wrapper" style="max-height:380px;">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Dir</th><th>Entry Ref</th><th>Entry VWAP</th><th>Entry Drift</th>
+                  <th>Exit Ref</th><th>Exit VWAP</th><th>Exit Drift</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="eq-tbody"><tr><td colspan="9" class="text-muted text-center py-3">Open Execution tab to load parity checks.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3 tab-pane-section is-hidden" id="risk-row" data-tab-pane="risk">
+    <div class="col-12">
+      <div class="card h-100">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <span><i class="bi bi-exclamation-triangle-fill me-1"></i>Risk Armor Telemetry</span>
+          <button class="btn btn-sm btn-outline-secondary" onclick="loadRiskAndAttribution()" style="font-size:var(--fs-sm); padding:2px 10px;">
+            <i class="bi bi-arrow-repeat"></i> Refresh
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">Kill Switch</div><div class="v" id="risk-kill">—</div><button class="btn btn-sm btn-outline-warning ms-2" id="btn-reset-kill" style="font-size:var(--fs-xs);padding:1px 6px;display:none;" onclick="resetKillSwitch()">RESET</button></div></div>
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">Degraded Mode</div><div class="v" id="risk-degraded">—</div></div></div>
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">L2 Feed</div><div class="v" id="risk-l2">—</div></div></div>
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">L2 Age</div><div class="v" id="risk-l2-age">—</div></div></div>
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">Actor Drops</div><div class="v" id="risk-actor-drops">—</div></div></div>
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">Outbox Drops</div><div class="v" id="risk-outbox-drops">—</div></div></div>
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">SLO Trips</div><div class="v" id="risk-slo-trips">—</div></div></div>
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">Balance Drift</div><div class="v" id="risk-balance-drift">—</div></div></div>
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">Macro Guard</div><div class="v" id="risk-macro-guard">—</div></div></div>
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">Next Macro</div><div class="v" id="risk-macro-next">—</div></div></div>
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">Integrity</div><div class="v" id="risk-integrity">—</div></div></div>
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">Mismatch Count</div><div class="v" id="risk-integrity-mismatches">—</div></div></div>
+          </div>
+          <div class="small text-muted mt-3" id="risk-run-id">Run ID: —</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-diagram-3 me-1"></i>Attribution + Accounting</div>
+        <div class="card-body">
+          <div class="row g-2 mb-3">
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">Current Balance</div><div class="v" id="acct-current-balance">—</div></div></div>
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">Derived Restart</div><div class="v" id="acct-derived-restart">—</div></div></div>
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">Authoritative</div><div class="v" id="acct-authoritative">—</div></div></div>
+            <div class="col-sm-6"><div class="eq-pill"><div class="k">Drift (USD)</div><div class="v" id="acct-drift">—</div></div></div>
+          </div>
+          <div class="trade-table-wrapper" style="max-height:260px;">
+            <table class="table table-hover mb-0">
+              <thead><tr><th>Mode</th><th>Trades</th><th>Win%</th><th>Total P&amp;L</th><th>Avg P&amp;L</th></tr></thead>
+              <tbody id="attrib-mode-tbody"><tr><td colspan="5" class="text-muted text-center py-3">Open Risk tab to load attribution.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       AGENTS TAB — Per-personality P&L, win rates, allocation tracking
+       ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Agents: Consensus summary + allocation chart -->
+
+  <!-- Agents: Open positions -->
+
+  <!-- Agents: Trade log per personality -->
+
+  <!-- ML Model Panel -->
+  <div class="row g-3 mb-3 tab-pane-section is-hidden" id="ml-row" data-tab-pane="model">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between">
+          <span><i class="bi bi-robot me-1"></i>ML Model</span>
+          <span id="ml-status-badge" class="badge bg-secondary" style="font-size:var(--fs-sm);">Shadow</span>
+        </div>
+        <div class="card-body p-2">
+          <div class="row">
+            <div class="col-md-4">
+              <table class="table table-sm table-dark mb-0" style="font-size:var(--fs-sm);">
+                <tbody>
+                  <tr><td class="text-muted">Status</td><td id="ml-status">—</td></tr>
+                  <tr><td class="text-muted">Samples</td><td id="ml-samples">0</td></tr>
+                  <tr><td class="text-muted">Learning Rate</td><td id="ml-lr">—</td></tr>
+                  <tr><td class="text-muted">Acc (20)</td><td id="ml-acc-20">—</td></tr>
+                  <tr><td class="text-muted">Acc (50)</td><td id="ml-acc-50">—</td></tr>
+                  <tr><td class="text-muted">ML p_up</td><td id="ml-p-up">—</td></tr>
+                  <tr><td class="text-muted">Fusion p_up</td><td id="ml-fusion-p-up">—</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="col-md-8">
+              <div style="font-size:var(--fs-sm); color:#aaa; margin-bottom:4px;">Feature Weights (learned)</div>
+              <div id="ml-weights-bars" style="font-size:var(--fs-sm);"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deep Model Panel -->
+  <div class="row g-3 mb-3 tab-pane-section is-hidden" id="deep-model-row" data-tab-pane="model">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-gpu-card me-1"></i>Deep Model (ONNX)</span>
+          <div class="d-flex align-items-center gap-2">
+            <span id="deep-phase-badge" class="badge bg-secondary" style="font-size:var(--fs-sm);">No Model</span>
+            <button class="btn btn-sm btn-outline-secondary" aria-label="Refresh deep model state" title="Refresh deep model state" onclick="loadDeepModelState()" style="font-size:var(--fs-sm); padding:2px 10px;">
+              <i class="bi bi-arrow-repeat"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-2">
+          <div class="row g-3">
+            <!-- Model Info -->
+            <div class="col-md-3">
+              <div style="font-size:var(--fs-sm); color:var(--clr-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Model Info</div>
+              <table class="table table-sm table-dark mb-0" style="font-size:var(--fs-sm);">
+                <tbody>
+                  <tr><td class="text-muted" style="width:45%;">Status</td><td id="deep-status" class="fw-bold">Not loaded</td></tr>
+                  <tr><td class="text-muted">Version</td><td id="deep-version">—</td></tr>
+                  <tr><td class="text-muted">Loaded</td><td id="deep-loaded-ago">—</td></tr>
+                  <tr><td class="text-muted">Inference</td><td id="deep-inference-ms">—</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- Ensemble State -->
+            <div class="col-md-3">
+              <div style="font-size:var(--fs-sm); color:var(--clr-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Ensemble</div>
+              <table class="table table-sm table-dark mb-0" style="font-size:var(--fs-sm);">
+                <tbody>
+                  <tr><td class="text-muted" style="width:45%;">Phase</td><td id="deep-ens-phase">shadow</td></tr>
+                  <tr><td class="text-muted">Weight</td><td id="deep-ens-weight">0%</td></tr>
+                  <tr><td class="text-muted">Ramp</td><td id="deep-ens-ramp">0 / 100</td></tr>
+                  <tr><td class="text-muted">Samples</td><td id="deep-ens-samples">0</td></tr>
+                </tbody>
+              </table>
+              <div style="margin-top:6px">
+                <div style="display:flex;justify-content:space-between;font-size:var(--fs-xs);color:var(--clr-muted)">
+                  <span>Promotion Progress</span>
+                  <span id="deep-promo-label">0 / 200</span>
+                </div>
+                <div style="height:6px;background:rgba(255,255,255,0.12);border-radius:var(--r-sm);margin-top:3px;overflow:hidden">
+                  <div id="deep-promo-bar" style="height:100%;width:0%;background:var(--clr-purple);border-radius:var(--r-sm);transition:width 0.4s"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Accuracy -->
+            <div class="col-md-3">
+              <div style="font-size:var(--fs-sm); color:var(--clr-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Deep Accuracy</div>
+              <table class="table table-sm table-dark mb-0" style="font-size:var(--fs-sm);">
+                <tbody>
+                  <tr><td class="text-muted" style="width:45%;">Acc (50)</td><td id="deep-acc-50">—</td></tr>
+                  <tr><td class="text-muted">Acc (200)</td><td id="deep-acc-200">—</td></tr>
+                  <tr><td class="text-muted">Brier (50)</td><td id="deep-brier-50">—</td></tr>
+                  <tr><td class="text-muted">Calibration</td><td id="deep-cal-pts">0 pts</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- Last Prediction -->
+            <div class="col-md-3">
+              <div style="font-size:var(--fs-sm); color:var(--clr-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Last Prediction</div>
+              <table class="table table-sm table-dark mb-0" style="font-size:var(--fs-sm);">
+                <tbody>
+                  <tr><td class="text-muted" style="width:45%;">Deep p_up</td><td id="deep-p-up">—</td></tr>
+                  <tr><td class="text-muted">Blended</td><td id="deep-blended">—</td></tr>
+                  <tr><td class="text-muted">MC Uncert.</td><td id="deep-mc-unc">—</td></tr>
+                  <tr><td class="text-muted">Skip?</td><td id="deep-skip">—</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Deep weight progress bar -->
+          <div class="mt-2 px-1">
+            <div class="d-flex justify-content-between" style="font-size:var(--fs-xs); color:var(--clr-muted);">
+              <span>LR Only</span>
+              <span id="deep-weight-label">Deep Weight: 0%</span>
+              <span>Deep 60%</span>
+            </div>
+            <div class="progress" style="height:5px; background:rgba(255,255,255,0.06); border-radius:var(--r-sm);">
+              <div id="deep-weight-bar" class="progress-bar" style="width:0%; background:var(--clr-purple); transition:width 300ms ease;"></div>
+            </div>
+          </div>
+          <!-- Model A/B Comparison (#28) -->
+          <div class="mt-2 px-1">
+            <table class="table table-sm mb-0" style="font-size:var(--fs-sm);">
+              <thead><tr><th>Model</th><th>Brier</th><th>Acc</th><th>Samples</th><th>Agreement</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>Online LR</td>
+                  <td id="ab-lr-brier">—</td>
+                  <td id="ab-lr-acc">—</td>
+                  <td id="ab-lr-samples">—</td>
+                  <td rowspan="2" id="ab-agreement" style="vertical-align:middle; text-align:center; font-size:var(--fs-md);">—</td>
+                </tr>
+                <tr>
+                  <td>Deep ONNX</td>
+                  <td id="ab-deep-brier">—</td>
+                  <td id="ab-deep-acc">—</td>
+                  <td id="ab-deep-samples">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ Phase 2 Intelligence Panels ═══════════════ -->
+
+  <!-- Regime Detection + Granger Weights row -->
+  <div class="row g-3 mb-3 tab-pane-section is-hidden" id="regime-granger-row" data-tab-pane="signals">
+    <div class="col-md-5">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-compass me-1"></i>Regime Detection</div>
+        <div class="card-body py-2">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span id="regime-badge" class="badge" style="font-size:var(--fs-lg); padding:6px 14px; background:rgba(255,255,255,0.12);">—</span>
+            <span id="regime-phase" class="text-muted" style="font-size:var(--fs-sm);">—</span>
+          </div>
+          <div class="row g-1" style="font-size:var(--fs-sm);">
+            <div class="col-6"><span class="text-muted">VWAP Slope</span></div><div class="col-6 text-end" id="reg-vwap-slope">—</div>
+            <div class="col-6"><span class="text-muted">RSI</span></div><div class="col-6 text-end" id="reg-rsi">—</div>
+            <div class="col-6"><span class="text-muted">MACD Hist</span></div><div class="col-6 text-end" id="reg-macd">—</div>
+            <div class="col-6"><span class="text-muted">OB Imbalance</span></div><div class="col-6 text-end" id="reg-obi">—</div>
+            <div class="col-6"><span class="text-muted">Tick Velocity</span></div><div class="col-6 text-end" id="reg-tv">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-7">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-link-45deg me-1"></i>Granger Causality Weights</div>
+        <div class="card-body py-2">
+          <div style="font-size:var(--fs-xs); color:var(--clr-muted); margin-bottom:6px;">Signal reliability multipliers (0.65=penalized, 1.0=neutral, 1.15=boosted)</div>
+          <div id="granger-bars" style="display:flex; flex-direction:column; gap:4px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Multi-Agent Consensus + Counterfactual Scenarios row -->
+
+  <!-- Latency Arb + Cross-Market + VPIN row -->
+  <div class="row g-3 mb-3 tab-pane-section is-hidden" id="arb-cross-vpin-row" data-tab-pane="signals">
+    <div class="col-md-6 col-xl-3">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-lightning-charge-fill me-1"></i>Latency Arb</div>
+        <div class="card-body py-2">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span id="arb-badge" class="badge bg-secondary" style="font-size:var(--fs-sm);">NO ARB</span>
+            <span id="arb-conf" class="text-muted" style="font-size:var(--fs-sm);"></span>
+          </div>
+          <div class="row g-1" style="font-size:var(--fs-sm);">
+            <div class="col-7"><span class="text-muted">Binance Move</span></div><div class="col-5 text-end" id="arb-move">—</div>
+            <div class="col-7"><span class="text-muted">Direction</span></div><div class="col-5 text-end" id="arb-dir">—</div>
+            <div class="col-7"><span class="text-muted">Lag (cents)</span></div><div class="col-5 text-end" id="arb-lag">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-globe2 me-1"></i>Cross-Market Signals</div>
+        <div class="card-body py-2">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="text-muted" style="font-size:var(--fs-xs);">Net Signal</span>
+            <span id="cm-net" class="fw-bold" style="font-size:var(--fs-lg);">—</span>
+            <span class="text-muted" style="font-size:var(--fs-xs);">Conf</span>
+            <span id="cm-conf" class="fw-bold" style="font-size:var(--fs-sm);">—</span>
+          </div>
+          <div id="cm-signals" style="font-size:var(--fs-sm);">
+            <span class="text-muted">No recent cross-market resolutions</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-activity me-1"></i>VPIN Microstructure</div>
+        <div class="card-body py-2">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="text-muted" style="font-size:var(--fs-xs);">VPIN</span>
+            <span id="vpin-value" class="fw-bold" style="font-size:var(--fs-lg);">—</span>
+          </div>
+          <div style="height:8px; background:rgba(255,255,255,0.08); border-radius:var(--r-sm); overflow:hidden; margin-bottom:6px;">
+            <div id="vpin-bar" style="height:100%; width:50%; background: linear-gradient(90deg, var(--clr-green), var(--clr-yellow), var(--clr-red)); border-radius:var(--r-sm); transition:width 0.4s;"></div>
+          </div>
+          <div class="row g-1" style="font-size:var(--fs-sm);">
+            <div class="col-7"><span class="text-muted">Trade Imbalance</span></div><div class="col-5 text-end" id="vpin-imbalance">—</div>
+            <div class="col-7"><span class="text-muted">VWAP Deviation</span></div><div class="col-5 text-end" id="vpin-vwap-dev">—</div>
+            <div class="col-7"><span class="text-muted">Signal</span></div><div class="col-5 text-end" id="vpin-signal">—</div>
+            <div class="col-7"><span class="text-muted">Confidence</span></div><div class="col-5 text-end" id="vpin-conf">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-diagram-3-fill me-1"></i>Strike Ladder Check</div>
+        <div class="card-body py-2">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span id="no-arb-badge" class="badge bg-secondary" style="font-size:var(--fs-sm);">—</span>
+            <span id="no-arb-summary" class="text-muted" style="font-size:var(--fs-sm);"></span>
+          </div>
+          <div class="row g-1" style="font-size:var(--fs-sm);">
+            <div class="col-7"><span class="text-muted">Comparable Groups</span></div><div class="col-5 text-end" id="no-arb-groups">—</div>
+            <div class="col-7"><span class="text-muted">Max Violation</span></div><div class="col-5 text-end" id="no-arb-max">—</div>
+            <div class="col-7"><span class="text-muted">Worst Ladder</span></div><div class="col-5 text-end" id="no-arb-worst">—</div>
+          </div>
+          <div class="small text-muted mt-2" id="no-arb-detail">Gamma quotes are a diagnostic; they do not prove an executable arbitrage.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liquidation Tracker (enhanced) -->
+  <div class="row g-3 mb-3 tab-pane-section is-hidden" id="liq-row" data-tab-pane="signals">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header"><i class="bi bi-droplet-fill me-1"></i>Liquidation Tracker
+          <span id="liq-spike-badge" class="badge bg-secondary ms-2" style="font-size:var(--fs-xs);">z=0.0</span>
+        </div>
+        <div class="card-body py-2">
+          <div class="row g-3" style="font-size:var(--fs-sm);">
+            <div class="col-md-3">
+              <div style="font-size:var(--fs-xs); color:var(--clr-muted); text-transform:uppercase; letter-spacing:0.04em;">30-Second Window</div>
+              <div class="row g-1 mt-1">
+                <div class="col-6"><span class="text-muted">Longs</span></div><div class="col-6 text-end" id="liq-30s-long">—</div>
+                <div class="col-6"><span class="text-muted">Shorts</span></div><div class="col-6 text-end" id="liq-30s-short">—</div>
+                <div class="col-6"><span class="text-muted">Ratio</span></div><div class="col-6 text-end" id="liq-30s-ratio">—</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div style="font-size:var(--fs-xs); color:var(--clr-muted); text-transform:uppercase; letter-spacing:0.04em;">5-Minute Window</div>
+              <div class="row g-1 mt-1">
+                <div class="col-6"><span class="text-muted">Longs</span></div><div class="col-6 text-end" id="liq-5m-long">—</div>
+                <div class="col-6"><span class="text-muted">Shorts</span></div><div class="col-6 text-end" id="liq-5m-short">—</div>
+                <div class="col-6"><span class="text-muted">Ratio</span></div><div class="col-6 text-end" id="liq-5m-ratio">—</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div style="font-size:var(--fs-xs); color:var(--clr-muted); text-transform:uppercase; letter-spacing:0.04em;">Long/Short Ratio (30s)</div>
+              <div style="display:flex; align-items:center; gap:4px; margin-top:6px;">
+                <span style="font-size:var(--fs-xs); color:var(--clr-green);">LONG</span>
+                <div style="flex:1; height:10px; background:rgba(255,255,255,0.06); border-radius:var(--r-sm); overflow:hidden; display:flex;">
+                  <div id="liq-ratio-bar" style="width:50%; background:var(--clr-green); transition:width 0.4s;"></div>
+                  <div style="flex:1; background:var(--clr-red);"></div>
+                </div>
+                <span style="font-size:var(--fs-xs); color:var(--clr-red);">SHORT</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session Performance Heatmap -->
+  <div class="row g-3 mb-3 tab-pane-section is-hidden" id="heatmap-row" data-tab-pane="risk">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header"><i class="bi bi-grid-3x3-gap-fill me-1"></i>Session Performance by Hour (UTC)</div>
+        <div class="card-body py-2 px-3">
+          <div id="hour-heatmap" style="display:flex; gap:3px; flex-wrap:wrap; align-items:flex-end;"></div>
+          <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:var(--fs-xs); color:var(--clr-muted); font-family:'IBM Plex Mono',monospace;">
+            <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Counterfactual scenario tree — expected value across BTC moves. -->
+  <div class="row g-3 mb-3 tab-pane-section is-hidden" id="scenario-row" data-tab-pane="signals">
+    <div class="col-12">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-diagram-2-fill me-1"></i>Counterfactual Scenario Tree</div>
+        <div class="card-body py-2">
+          <div class="d-flex gap-3 mb-2 flex-wrap" style="font-size:var(--fs-sm);">
+            <span>YES EV: <b id="cf-yes-ev">&mdash;</b></span>
+            <span>NO EV: <b id="cf-no-ev">&mdash;</b></span>
+            <span>Max Loss: <b id="cf-max-loss">&mdash;</b></span>
+            <span>Action: <b id="cf-action">&mdash;</b></span>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="table table-sm table-dark mb-0" style="font-size:var(--fs-sm);">
+              <thead><tr><th>Scenario</th><th>BTC Move</th><th>YES Price</th><th>YES P&amp;L</th><th>NO P&amp;L</th><th>Prob</th></tr></thead>
+              <tbody id="cf-tbody">
+                <tr><td colspan="6" class="text-muted text-center py-2">Waiting for data&hellip;</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orderbook Depth Heatmap (#26) -->
+  <div class="row g-3 mb-3 tab-pane-section is-hidden" id="ob-heatmap-row" data-tab-pane="signals">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header"><i class="bi bi-bar-chart-steps me-1"></i>Order Book Depth
+          <span id="ob-spread-badge" class="badge bg-secondary ms-2" style="font-size:var(--fs-xs);"></span>
+          <span id="ob-depth-badge" class="badge bg-secondary ms-2" style="font-size:var(--fs-xs);"></span>
+        </div>
+        <div class="card-body py-2 px-3">
+          <div style="display:flex; gap:2px; height:60px; align-items:flex-end;">
+            <div style="flex:1; display:flex; gap:1px; align-items:flex-end; justify-content:flex-end;" id="ob-bids"></div>
+            <div style="width:2px; background:var(--clr-muted); height:100%;"></div>
+            <div style="flex:1; display:flex; gap:1px; align-items:flex-end;" id="ob-asks"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:var(--fs-xs); color:var(--clr-muted); margin-top:4px;">
+            <span>Bids</span><span>Mid</span><span>Asks</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Altcoin Correlation (#14) -->
+  <div class="row g-3 mb-3 tab-pane-section is-hidden" id="altcoin-row" data-tab-pane="signals">
+    <div class="col-6">
+      <div class="stat-pill"><div class="stat-label">ETH Δ%</div><div class="stat-value" id="eth-change">—</div></div>
+    </div>
+    <div class="col-6">
+      <div class="stat-pill"><div class="stat-label">SOL Δ%</div><div class="stat-value" id="sol-change">—</div></div>
+    </div>
+  </div>
+
+  <!-- Config Panel (collapsible) -->
+  <!-- Tape — the watching view. One screen, two columns, no scrolling.
+       The countdown is the largest element because in a fifteen-minute market
+       it governs every other decision. -->
+  <div class="row g-3 mb-3 tab-pane-section is-hidden" id="tape-row" data-tab-pane="tape">
+    <div class="col-12">
+      <div class="tape">
+
+        <div class="tape-col">
+          <section class="tape-sec" aria-labelledby="tape-clock-h">
+            <h3 class="tape-h" id="tape-clock-h">Market closes in</h3>
+            <div class="tape-clock">
+              <span class="t" id="tape-countdown">--:--</span>
+              <span class="u">of 15:00</span>
+            </div>
+            <div class="tape-track"><i id="tape-track-fill" style="width:0%"></i></div>
+            <dl class="tape-rows">
+              <div class="tape-row"><dt id="tape-market">Waiting for a market…</dt><dd id="tape-market-window">—</dd></div>
+              <div class="tape-row"><dt>Price to beat</dt><dd id="tape-strike">—</dd></div>
+              <div class="tape-row"><dt>Spot</dt><dd id="tape-spot">—</dd></div>
+              <div class="tape-row"><dt>YES / NO</dt><dd id="tape-odds">—</dd></div>
+            </dl>
+          </section>
+
+          <section class="tape-sec" aria-labelledby="tape-open-h">
+            <h3 class="tape-h" id="tape-open-h">Open positions</h3>
+            <div class="tape-scroll">
+              <table class="tape-table" id="tape-open">
+                <thead>
+                  <tr>
+                    <th scope="col">Market</th><th scope="col">Side</th>
+                    <th scope="col" class="num">Entry</th><th scope="col" class="num">Size</th>
+                    <th scope="col" class="num">Mark</th><th scope="col" class="num" title="Fresh book mark, before entry and future exit fees">Mark P&amp;L</th>
+                  </tr>
+                </thead>
+                <tbody><tr><td colspan="6" class="tape-empty">No open positions.</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="tape-sec tape-sec-grow" aria-labelledby="tape-dec-h">
+            <h3 class="tape-h" id="tape-dec-h">Last decisions
+              <span class="tape-h-note" id="tape-dec-note"></span>
+            </h3>
+            <div class="tape-scroll tape-scroll-y">
+              <table class="tape-table" id="tape-decisions">
+                <thead>
+                  <tr>
+                    <th scope="col">Time</th><th scope="col">Market</th>
+                    <th scope="col">Call</th><th scope="col" class="num">Conf.</th>
+                    <th scope="col">Outcome</th>
+                  </tr>
+                </thead>
+                <tbody><tr><td colspan="5" class="tape-empty">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <div class="tape-col tape-col-side">
+          <section class="tape-sec" aria-labelledby="tape-session-h">
+            <h3 class="tape-h" id="tape-session-h">Performance</h3>
+            <div class="tape-big" id="tape-session-pnl">—</div>
+            <dl class="tape-rows">
+              <div class="tape-row"><dt>Trades</dt><dd id="tape-session-trades">—</dd></div>
+              <div class="tape-row"><dt>Win rate</dt><dd id="tape-session-wr">—</dd></div>
+              <div class="tape-row"><dt>Max drawdown</dt><dd id="tape-session-dd">—</dd></div>
+              <div class="tape-row"><dt>Balance</dt><dd id="tape-session-bal">—</dd></div>
+            </dl>
+          </section>
+
+          <section class="tape-sec tape-sec-grow" aria-labelledby="tape-signals-h">
+            <h3 class="tape-h" id="tape-signals-h">Signals</h3>
+            <div class="tape-bars" id="tape-bars">
+              <p class="tape-empty">No signal breakdown yet.</p>
+            </div>
+          </section>
+
+          <section class="tape-sec" aria-labelledby="tape-health-h">
+            <h3 class="tape-h" id="tape-health-h">Health</h3>
+            <dl class="tape-rows" id="tape-health"></dl>
+          </section>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Report — the evidence view. Document-shaped on purpose: this is the
+       screen you screenshot for a reviewer, not one you watch. -->
+  <div class="row g-3 mb-3 tab-pane-section is-hidden" id="report-row" data-tab-pane="report">
+    <div class="col-12">
+      <section class="ledger" aria-labelledby="ledger-title">
+
+        <header class="ledger-head">
+          <div>
+            <h2 class="ledger-title" id="ledger-title">Shadow window</h2>
+            <p class="ledger-sub" id="ledger-window-sub">Loading closed trades…</p>
+          </div>
+          <div class="ledger-prov" id="ledger-prov"></div>
+        </header>
+
+        <div class="ledger-gate" id="ledger-gate" hidden></div>
+
+        <div class="ledger-figs" id="ledger-figs"></div>
+
+        <figure class="ledger-spark">
+          <svg id="ledger-curve" viewBox="0 0 680 120" width="100%" height="120"
+               preserveAspectRatio="none" role="img"
+               aria-labelledby="ledger-curve-caption"></svg>
+          <figcaption class="ledger-caption" id="ledger-curve-caption">
+            Cumulative net profit and loss after fees, by close time.
+          </figcaption>
+        </figure>
+
+        <div class="ledger-grid">
+          <div class="ledger-block">
+            <h3 class="ledger-h3">Closed trades</h3>
+            <div class="ledger-scroll">
+              <table class="ledger-table" id="ledger-trades">
+                <thead>
+                  <tr>
+                    <th scope="col">Closed</th>
+                    <th scope="col">Market</th>
+                    <th scope="col">Side</th>
+                    <th scope="col" class="num">Entry</th>
+                    <th scope="col" class="num">Exit</th>
+                    <th scope="col" class="num">Fee</th>
+                    <th scope="col" class="num">Net</th>
+                  </tr>
+                </thead>
+                <tbody><tr><td colspan="7" class="ledger-empty">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="ledger-block">
+            <h3 class="ledger-h3">Not traded</h3>
+            <p class="ledger-note" id="ledger-rej-note">&nbsp;</p>
+            <div class="ledger-scroll">
+              <table class="ledger-table" id="ledger-rejections">
+                <thead>
+                  <tr>
+                    <th scope="col">Reason</th>
+                    <th scope="col" class="num">Count</th>
+                    <th scope="col" class="num">Share</th>
+                  </tr>
+                </thead>
+                <tbody><tr><td colspan="3" class="ledger-empty">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <footer class="ledger-foot" id="ledger-foot"></footer>
+      </section>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3 tab-pane-section is-hidden" id="config-row" data-tab-pane="config">
+    <div class="col-12">
+      <div class="card">
+        <!-- Opens expanded. The whole tab was one collapsed row sitting next
+             to a Save button, so the only thing on screen was a control that
+             saves content you have not seen. -->
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-gear-fill me-1"></i>Configuration</span>
+          <button class="btn btn-sm btn-outline-success" onclick="saveConfig()" style="font-size:var(--fs-sm); padding:2px 10px;">
+            <i class="bi bi-floppy-fill"></i> Save Config
+          </button>
+        </div>
+        <div class="card-body" id="config-body">
+          <div class="row g-3" id="config-panel">
+            <div class="col-12 text-muted text-center small">Loading config…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script src="/static/vendor/bootstrap.bundle.min.js"></script>
+<script src="/static/api-auth.js"></script>
+<script src="/static/dashboard.js"></script>
+</body>
+</html>

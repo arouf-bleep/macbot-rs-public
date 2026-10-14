@@ -1,0 +1,6 @@
+[toolchain]
+# Pinned so local and CI agree. A floating "stable" channel silently overrides
+# the version the CI workflow installs, which drifted onto newer Clippy lints
+# and broke the build while the documented baseline said 1.94.0.
+channel = "1.94.0"
+components = ["rustfmt", "clippy"]
